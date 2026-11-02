@@ -1,0 +1,1686 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dịch Tài Liệu PDF</title>
+<meta name="description" content="Dịch tài liệu PDF sang hơn 60 ngôn ngữ ngay trên trình duyệt. Miễn phí, không đăng nhập, tài liệu chỉ nằm trên máy bạn.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2c6e5a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dịch Tài Liệu PDF – miễn phí, không cần đăng nhập">
+<meta property="og:description" content="Thả file PDF vào, chọn ngôn ngữ, bấm Dịch. Hơn 60 thứ tiếng, xem song ngữ, xuất TXT, HTML, EPUB, PDF. Tài liệu chỉ nằm trên máy bạn.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232c6e5a'/%3E%3Cpath d='M9 8h9l5 5v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z' fill='%23fff'/%3E%3Cpath d='M11 15h8M11 18h8M11 21h5' stroke='%232c6e5a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+/* ===================== GIAO DIỆN: MÀU SẮC & BỐ CỤC ===================== */
+:root{
+  --bg:#f5f2ea; --panel:#fffdf8; --panel2:#f0ece2; --ink:#1e2226; --muted:#6a6f75; --line:#e2ddd0;
+  --accent:#2c6e5a; --accent-ink:#ffffff; --accent-soft:#e1eee8;
+  --err:#b83a2b; --err-soft:#fbe9e6; --warn:#9a6a12; --warn-soft:#fbf1dc; --mark:#ffe27a;
+  --shadow:0 1px 2px rgba(30,25,10,.06),0 6px 22px rgba(30,25,10,.07);
+  --radius:12px; --reader-size:18px;
+  --serif:Georgia,"Noto Serif","Times New Roman",serif; /* các phông này hiển thị đủ dấu Tiếng Việt */
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171a; --panel:#1d2024; --panel2:#24282d; --ink:#e6e3dc; --muted:#9a9fa6; --line:#30353b;
+    --accent:#6cc0a3; --accent-ink:#0b1f18; --accent-soft:#1f3830;
+    --err:#ff8a7a; --err-soft:#3b211d; --warn:#e7b85a; --warn-soft:#3a2f17; --mark:#6d5a10;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171a; --panel:#1d2024; --panel2:#24282d; --ink:#e6e3dc; --muted:#9a9fa6; --line:#30353b;
+  --accent:#6cc0a3; --accent-ink:#0b1f18; --accent-soft:#1f3830;
+  --err:#ff8a7a; --err-soft:#3b211d; --warn:#e7b85a; --warn-soft:#3a2f17; --mark:#6d5a10;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);min-height:100vh}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 13px;line-height:1.2;transition:background .15s,border-color .15s}
+button:hover{border-color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.danger{color:var(--err)}
+button.ghost{background:transparent;border-color:transparent}
+button.ghost:hover{background:var(--panel2)}
+select,input[type=text],input[type=password],input[type=search]{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 10px;min-width:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* Thanh đầu trang */
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;cursor:pointer;user-select:none;margin-right:auto;background:none;border:0;padding:4px}
+.logo svg{color:var(--accent)}
+.top nav{display:flex;gap:6px}
+
+/* Màn hình chính */
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+#home .wrap{max-width:760px;padding-top:6vh;padding-bottom:40px}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;min-height:44vh;border:2px dashed color-mix(in srgb,var(--accent) 55%,var(--line));border-radius:20px;background:var(--panel);padding:28px 18px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,background .15s}
+.drop:hover,.drop.over{background:var(--accent-soft);transform:translateY(-1px)}
+.drop .big{font-size:22px;font-weight:700}
+.drop svg{color:var(--accent)}
+.privacy{margin:14px 4px 0;font-size:13px;color:var(--muted);text-align:center}
+.recent{margin-top:28px}
+.recent h3,.lib h2{font-size:15px;margin:0 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.card .info{flex:1;min-width:0}
+.card .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .acts{display:flex;gap:6px;flex-shrink:0}
+.minibar{height:5px;background:var(--panel2);border-radius:9px;overflow:hidden;margin-top:6px}
+.minibar i{display:block;height:100%;background:var(--accent);width:0}
+
+/* Màn hình sách */
+.bookhead{background:var(--panel);border-bottom:1px solid var(--line)}
+.bookhead .wrap{padding-top:14px;padding-bottom:12px}
+.bh-title h1{font-size:20px;margin:0 0 2px;line-height:1.3;word-break:break-word}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin-top:12px}
+.ctl{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.ctl select{color:var(--ink);font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;border-radius:0;padding:7px 12px;background:transparent;color:var(--ink);font-size:14px}
+.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.menu{position:relative}
+.menu-list{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:6px;z-index:40;min-width:220px}
+.menu-list button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 10px}
+.menu-list button:hover{background:var(--panel2)}
+.runbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:12px}
+.run-btns{display:flex;gap:6px;flex-wrap:wrap}
+.prog{flex:1;min-width:220px}
+.bar{height:9px;background:var(--panel2);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
+#progText{font-size:13px;color:var(--muted);margin-top:4px}
+.note{font-size:12px;color:var(--muted);width:100%}
+.runmsg{width:100%;background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:9px 12px;font-size:14px}
+
+.reader{display:grid;grid-template-columns:270px 1fr;gap:0;max-width:1300px;margin:0 auto}
+#toc{position:sticky;top:57px;align-self:start;height:calc(100vh - 57px);overflow:auto;padding:14px 10px 30px 16px;border-right:1px solid var(--line)}
+.toc-head{display:flex;align-items:center;justify-content:space-between;font-weight:700;margin:0 4px 8px}
+.toc-head button{display:none}
+#tocList{list-style:none;margin:0;padding:0}
+#tocList li{padding:7px 8px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.35}
+#tocList li:hover{background:var(--panel2)}
+#tocList li.active{background:var(--accent-soft);font-weight:600}
+#tocList li .mini{display:block;height:3px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}
+#tocList li .mini i{display:block;height:100%;background:var(--accent);width:0}
+.toc-backdrop{display:none}
+
+.content{min-width:0;padding:0 22px 80px}
+.rtool{position:sticky;top:57px;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+.rtool .sp{flex:1}
+.search{position:relative;flex:1;min-width:150px;max-width:340px}
+.search input{width:100%}
+.sresults{position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:280px;max-height:60vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);z-index:45;padding:4px}
+.sresults .it{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13.5px}
+.sresults .it:hover{background:var(--panel2)}
+.sresults .it b{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.ch-head{padding:22px 0 6px}
+.ch-head h2{margin:0;font-size:22px;line-height:1.3}
+#chProg{font-size:13px;color:var(--muted)}
+.rows{font-size:var(--reader-size);line-height:1.7}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:8px 0;border-bottom:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
+.row .src{color:color-mix(in srgb,var(--ink) 78%,var(--muted));font-family:var(--serif);white-space:pre-wrap;word-break:break-word}
+.row .tr{font-family:var(--serif);white-space:pre-wrap;word-break:break-word;border-radius:8px;padding:2px 6px;margin:-2px -6px;cursor:text;transition:background .15s}
+.row .tr:hover{background:var(--panel2)}
+.row.h .src,.row.h .tr{font-weight:700;font-size:1.12em}
+.mode-tr .row{grid-template-columns:1fr;border-bottom:0;padding:5px 0}
+.mode-tr .row .src{display:none}
+.tr .ph{color:var(--muted);font-style:italic;font-size:.85em}
+.tr .ph-src{color:var(--muted);display:none}
+.mode-tr .tr.pending .ph{display:none}
+.mode-tr .tr.pending .ph-src{display:inline}
+.tr.busy{color:var(--muted)}
+.tr.busy .ph::after{content:"";display:inline-block;width:.6em;height:.6em;margin-left:.4em;border:2px solid var(--accent);border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tr.err{background:var(--err-soft);color:var(--err);cursor:pointer;border-left:3px solid var(--err)}
+.tr.err .ph{color:var(--err);font-style:normal;font-weight:600}
+.tr.editing{background:var(--panel)!important;cursor:auto;padding:6px;margin:-6px;border:1px solid var(--accent)}
+.tr textarea{width:100%;min-height:80px;resize:vertical;border:0;background:transparent;font:inherit;line-height:inherit;outline:none;padding:0}
+.ed-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-family:var(--sans);font-size:13px}
+.ed-bar .sp{flex:1}
+.row.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,40%{background:var(--mark)}100%{background:transparent}}
+mark{background:var(--mark);color:inherit;border-radius:3px}
+#sentinel{height:1px}
+.ch-nav{display:flex;justify-content:space-between;gap:10px;padding:26px 0}
+
+/* Tủ sách */
+.lib{padding-top:24px;padding-bottom:40px}
+.empty{padding:40px 10px;text-align:center;color:var(--muted)}
+
+/* Hộp thoại */
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(10,12,14,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.dialog{background:var(--panel);color:var(--ink);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:460px;max-height:calc(100vh - 32px);overflow:auto;padding:20px}
+.dialog.wide{max-width:680px}
+.dialog h3{margin:0 0 10px;font-size:18px}
+.dialog p{margin:6px 0 12px}
+.dlg-acts{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:16px}
+.dialog input[type=password],.dialog input[type=text]{width:100%}
+.steps{display:grid;gap:10px;margin:12px 0}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border-radius:12px;padding:12px}
+.step .n{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+.gl-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
+.gl-row input{width:100%}
+.gl-sug{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.gl-sug .gs{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:6px;align-items:center;margin-bottom:5px;font-size:14px}
+.gl-sug .gs input[type=text]{width:100%}
+.gl-list{max-height:40vh;overflow:auto;padding-right:2px}
+.loadbar{height:8px;background:var(--panel2);border-radius:9px;overflow:hidden;margin:12px 0 4px}
+.loadbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+
+/* Thông báo nhỏ */
+#toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;width:min(92vw,460px);pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:11px 14px;border-radius:10px;box-shadow:var(--shadow);font-size:14px;transition:opacity .3s,transform .3s;pointer-events:auto}
+.toast.err{background:var(--err);color:#fff}
+.toast.warn{background:var(--warn);color:#fff}
+.toast.out{opacity:0;transform:translateY(8px)}
+
+/* Điện thoại / màn hẹp */
+@media (max-width:860px){
+  .reader{grid-template-columns:1fr}
+  #toc{position:fixed;top:0;left:0;bottom:0;height:100vh;width:min(84vw,330px);z-index:60;background:var(--panel);transform:translateX(-102%);transition:transform .2s;box-shadow:var(--shadow);padding-top:16px}
+  #toc.open{transform:none}
+  .toc-head button{display:inline-block}
+  .toc-backdrop.open{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.35)}
+  .content{padding:0 16px 70px}
+  .row{grid-template-columns:1fr;gap:4px;padding:10px 0}
+  .row .src{font-size:.86em}
+  .search{order:10;flex-basis:100%;max-width:none}
+  .rtool{top:53px}
+  .top{padding:8px 12px}
+  .hide-m{display:none}
+  .logo{font-size:16px;white-space:nowrap}
+  .top nav button{padding:8px 9px}
+  .bh-title h1{font-size:18px}
+  .controls{gap:8px 10px}
+  .gl-row{grid-template-columns:1fr 1fr auto}
+  .gl-row .arrow{display:none}
+  .gl-sug .gs{grid-template-columns:auto 1fr;}
+  .gl-sug .gs .arrow{display:none}
+  .gl-sug .gs input[type=text]{grid-column:2}
+}
+@media (min-width:861px){ #btnToc{display:none} }
+</style>
+<!-- Thư viện bên ngoài (tải sau, không làm chậm lúc mở trang) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <button class="logo" id="goHome" aria-label="Về trang chính">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8.5 8h3M10 8v5M13.5 13l2-5 2 5M14.2 11.5h2.6"/></svg>
+    <span class="logo-t">Dịch Tài Liệu PDF</span>
+  </button>
+  <nav>
+    <button class="ghost" id="navLib">Tài liệu<span class="hide-m"> của tôi</span></button>
+    <button class="ghost" id="navTheme" aria-label="Đổi sáng/tối" title="Đổi chế độ sáng/tối">◐</button>
+    <button class="ghost" id="navHelp" aria-label="Hướng dẫn" title="Hướng dẫn">?</button>
+  </nav>
+</header>
+
+<!-- MÀN HÌNH CHÍNH -->
+<main id="home">
+  <div class="wrap">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Chọn file PDF">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 17v-6M9.5 13.5 12 11l2.5 2.5"/></svg>
+      <div class="big">Kéo thả file PDF vào đây</div>
+      <div class="muted">hoặc <u>bấm để chọn file</u> trên máy</div>
+      <button class="primary" type="button" id="pickBtn" tabindex="-1">Chọn file PDF</button>
+    </div>
+    <p class="privacy">🔒 Tài liệu chỉ nằm trên máy bạn. Miễn phí cho mọi người, không đăng nhập, không quảng cáo. Chỉ phần chữ cần dịch được gửi tới Google Translate. Dịch được sang hơn 60 thứ tiếng.</p>
+    <div class="recent" id="recent" hidden>
+      <h3>Tài liệu gần đây</h3>
+      <div id="recentList"></div>
+    </div>
+  </div>
+</main>
+
+<!-- MÀN HÌNH SÁCH -->
+<section id="bookScreen" hidden>
+  <div class="bookhead">
+    <div class="wrap">
+      <div class="bh-title"><h1 id="bTitle"></h1><div id="bStats" class="muted small"></div></div>
+      <div class="controls">
+        <label class="ctl">Ngôn ngữ gốc <select id="selSrc"></select></label>
+        <label class="ctl">Dịch sang <select id="selTgt"></select></label>
+        <label class="ctl">Số lượt cùng lúc <select id="selConc"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+        <button id="btnGloss" type="button">📖 Tên riêng & thuật ngữ</button>
+        <div class="menu">
+          <button id="btnExport" type="button">⬇ Xuất file ▾</button>
+          <div class="menu-list" id="exportMenu" hidden>
+            <button data-exp="txt">TXT – chỉ bản dịch</button>
+            <button data-exp="html">HTML song ngữ</button>
+            <button data-exp="epub">EPUB – cho máy đọc sách</button>
+            <button data-exp="print">In / Lưu PDF</button>
+          </div>
+        </div>
+      </div>
+      <div class="runbar">
+        <div class="run-btns">
+          <button class="primary" id="btnStart" type="button">▶ Dịch</button>
+          <button id="btnPause" type="button" hidden>⏸ Tạm dừng</button>
+          <button class="primary" id="btnResume" type="button" hidden>▶ Tiếp tục</button>
+          <button class="danger" id="btnCancel" type="button" hidden>✕ Huỷ</button>
+          <button id="btnRetryErr" type="button" hidden>↻ Dịch lại các đoạn lỗi</button>
+        </div>
+        <div class="prog"><div class="bar"><i id="progFill"></i></div><div id="progText"></div></div>
+        <div id="runMsg" class="runmsg" hidden></div>
+        <div class="note">Dùng Google Translate miễn phí, tài liệu dài có thể chậm.</div>
+      </div>
+    </div>
+  </div>
+  <div class="reader">
+    <aside id="toc" aria-label="Mục lục">
+      <div class="toc-head"><span>Mục lục</span><button class="ghost" id="tocClose" aria-label="Đóng mục lục">✕</button></div>
+      <ol id="tocList"></ol>
+    </aside>
+    <div class="toc-backdrop" id="tocBackdrop"></div>
+    <section class="content">
+      <div class="rtool">
+        <button id="btnToc" type="button">☰ Mục lục</button>
+        <div class="seg" id="segMode"><button data-v="bi" type="button">Song ngữ</button><button data-v="tr" type="button">Chỉ bản dịch</button></div>
+        <div class="search">
+          <input type="search" id="q" placeholder="Tìm trong bản gốc và bản dịch…" autocomplete="off">
+          <div class="sresults" id="sres" hidden></div>
+        </div>
+        <span class="sp"></span>
+        <button class="ghost" id="fontDown" type="button" title="Chữ nhỏ hơn">A−</button>
+        <button class="ghost" id="fontUp" type="button" title="Chữ to hơn">A+</button>
+        <button class="ghost" id="prevTop" type="button" title="Phần trước">‹</button>
+        <button class="ghost" id="nextTop" type="button" title="Phần sau">›</button>
+      </div>
+      <div class="ch-head"><h2 id="chTitle"></h2><div id="chProg"></div></div>
+      <div id="rows" class="rows"></div>
+      <div id="sentinel"></div>
+      <div class="ch-nav"><button id="prevCh" type="button">‹ Phần trước</button><button id="nextCh" type="button">Phần sau ›</button></div>
+    </section>
+  </div>
+</section>
+
+<!-- TỦ SÁCH -->
+<section id="libScreen" hidden>
+  <div class="wrap lib">
+    <h2>Tài liệu của tôi</h2>
+    <p class="muted small">Các tài liệu đã mở được lưu ngay trên trình duyệt này. Xoá dữ liệu trình duyệt sẽ xoá danh sách này.</p>
+    <div id="libList"></div>
+  </div>
+</section>
+
+<input type="file" id="file" accept="application/pdf,.pdf" hidden>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   0. TIỆN ÍCH CHUNG: chọn phần tử, thông báo, hộp thoại, định dạng số
+   ===================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => Math.round(n).toLocaleString('vi-VN');
+const median = a => { if (!a.length) return 0; const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
+const percentile = (a, p) => { if (!a.length) return 0; const b = [...a].sort((x, y) => x - y); return b[Math.min(b.length - 1, Math.floor(b.length * p))]; };
+const RE_CJK = /[\u2E80-\u2FDF\u3000-\u303F\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF]/;
+const isCJK = ch => !!ch && RE_CJK.test(ch);
+class UserError extends Error {}
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('dsp.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('dsp.' + k, JSON.stringify(v)); } catch {} }
+};
+function fmtDur(sec) {
+  if (!isFinite(sec) || sec < 0) return '—';
+  if (sec < 60) return 'dưới 1 phút';
+  const m = Math.round(sec / 60); if (m < 60) return m + ' phút';
+  const h = Math.floor(m / 60), mm = m % 60; return h + ' giờ' + (mm ? ' ' + mm + ' phút' : '');
+}
+function toast(msg, type = 'info', ms = 4200) {
+  const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, ms);
+}
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+// Hộp thoại chung. Trả về {el, close}
+function openDialog(html, { wide = false, onClose } = {}) {
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="dialog${wide ? ' wide' : ''}" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(ov);
+  const close = (v) => { if (!ov.isConnected) return; ov.remove(); document.removeEventListener('keydown', onKey); onClose && onClose(v); };
+  const onKey = e => { if (e.key === 'Escape') close(null); };
+  document.addEventListener('keydown', onKey);
+  ov.addEventListener('mousedown', e => { if (e.target === ov) close(null); });
+  return { el: ov.firstElementChild, close };
+}
+// Hỏi lựa chọn: trả về chỉ số nút được bấm (hoặc null nếu đóng)
+function ask(title, msg, buttons) {
+  return new Promise(res => {
+    const d = openDialog(`<h3>${esc(title)}</h3><p>${esc(msg)}</p><div class="dlg-acts">${buttons.map((b, i) => `<button data-i="${i}" class="${i === 0 ? 'primary' : ''}">${esc(b)}</button>`).join('')}</div>`, { onClose: v => res(v) });
+    $$('button[data-i]', d.el).forEach(b => b.onclick = () => d.close(+b.dataset.i));
+    $('button[data-i="0"]', d.el).focus();
+  });
+}
+const confirmBox = async (title, msg, ok = 'Đồng ý') => (await ask(title, msg, [ok, 'Thôi'])) === 0;
+const infoBox = (title, msg) => ask(title, msg, ['Đã hiểu']);
+
+// Ngôn ngữ
+const LANGS = [['auto', 'Tự nhận diện'], ['vi', 'Tiếng Việt'], ['en', 'Tiếng Anh'], ['zh-CN', 'Tiếng Trung (giản thể)'], ['zh-TW', 'Tiếng Trung (phồn thể)'], ['ja', 'Tiếng Nhật'], ['ko', 'Tiếng Hàn'],
+  ['fr', 'Tiếng Pháp'], ['de', 'Tiếng Đức'], ['es', 'Tiếng Tây Ban Nha'], ['it', 'Tiếng Ý'], ['pt', 'Tiếng Bồ Đào Nha'], ['ru', 'Tiếng Nga'], ['uk', 'Tiếng Ukraina'], ['pl', 'Tiếng Ba Lan'],
+  ['nl', 'Tiếng Hà Lan'], ['sv', 'Tiếng Thụy Điển'], ['da', 'Tiếng Đan Mạch'], ['no', 'Tiếng Na Uy'], ['fi', 'Tiếng Phần Lan'], ['cs', 'Tiếng Séc'], ['sk', 'Tiếng Slovak'], ['hu', 'Tiếng Hungary'],
+  ['ro', 'Tiếng Romania'], ['bg', 'Tiếng Bulgaria'], ['el', 'Tiếng Hy Lạp'], ['tr', 'Tiếng Thổ Nhĩ Kỳ'], ['ar', 'Tiếng Ả Rập'], ['fa', 'Tiếng Ba Tư'], ['iw', 'Tiếng Do Thái'], ['ur', 'Tiếng Urdu'],
+  ['hi', 'Tiếng Hindi'], ['bn', 'Tiếng Bengal'], ['ta', 'Tiếng Tamil'], ['te', 'Tiếng Telugu'], ['mr', 'Tiếng Marathi'], ['ne', 'Tiếng Nepal'], ['si', 'Tiếng Sinhala'], ['th', 'Tiếng Thái'],
+  ['lo', 'Tiếng Lào'], ['km', 'Tiếng Khmer'], ['my', 'Tiếng Miến Điện'], ['id', 'Tiếng Indonesia'], ['ms', 'Tiếng Mã Lai'], ['tl', 'Tiếng Philippines'], ['mn', 'Tiếng Mông Cổ'], ['kk', 'Tiếng Kazakh'],
+  ['uz', 'Tiếng Uzbek'], ['ka', 'Tiếng Gruzia'], ['hy', 'Tiếng Armenia'], ['sw', 'Tiếng Swahili'], ['af', 'Tiếng Afrikaans'], ['am', 'Tiếng Amharic'], ['hr', 'Tiếng Croatia'], ['sr', 'Tiếng Serbia'],
+  ['sl', 'Tiếng Slovenia'], ['lt', 'Tiếng Litva'], ['lv', 'Tiếng Latvia'], ['et', 'Tiếng Estonia'], ['is', 'Tiếng Iceland'], ['ga', 'Tiếng Ireland'], ['ca', 'Tiếng Catalan'], ['eu', 'Tiếng Basque'], ['la', 'Tiếng Latinh']];
+const LANG_NAME = Object.fromEntries(LANGS);
+const langName = c => LANG_NAME[c] || LANG_NAME[String(c).split('-')[0]] || c;
+const isRtl = c => /^(ar|fa|iw|he|ur|ps|yi)/.test(c || '');
+// Tên ngôn ngữ viết bằng chính ngôn ngữ đó (vd: "français") để in lên bìa file xuất
+function nativeName(c) { try { const n = new Intl.DisplayNames([c], { type: 'language' }).of(c); return n.charAt(0).toUpperCase() + n.slice(1); } catch { return langName(c); } }
+
+/* =====================================================================
+   1. LƯU TRỮ (IndexedDB): sách và từng đoạn được lưu ngay trên máy
+   - books: thông tin sách, chương, bảng tên riêng, trạng thái dịch
+   - paras: từng đoạn {b: mã sách, i: số thứ tự, s: gốc, t: dịch, st: trạng thái}
+     st: 0 = chưa dịch, 1 = đã dịch, 2 = lỗi, 3 = đang dịch (tạm thời)
+   ===================================================================== */
+const DB = {
+  db: null, warned: false,
+  async open() {
+    try {
+      this.db = await new Promise((res, rej) => {
+        const r = indexedDB.open('dich-sach-pdf', 1);
+        r.onupgradeneeded = () => {
+          const d = r.result;
+          if (!d.objectStoreNames.contains('books')) d.createObjectStore('books', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('paras')) d.createObjectStore('paras', { keyPath: ['b', 'i'] });
+        };
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('blocked'));
+      });
+    } catch { this.db = null; toast('Trình duyệt đang chặn lưu dữ liệu (có thể do chế độ ẩn danh). Bạn vẫn dịch được nhưng tải lại trang sẽ mất tiến độ.', 'warn', 8000); }
+  },
+  run(stores, mode, fn) {
+    return new Promise((res) => {
+      if (!this.db) return res(null);
+      let req, t;
+      try { t = this.db.transaction(stores, mode); req = fn(t); } catch (e) { this.fail(e); return res(null); }
+      t.oncomplete = () => res(req && 'result' in req ? req.result : null);
+      t.onerror = t.onabort = () => { this.fail(t.error); res(null); };
+    });
+  },
+  fail(e) {
+    if (this.warned) return; this.warned = true;
+    const full = e && /quota/i.test(e.name + e.message);
+    toast(full ? 'Bộ nhớ trình duyệt đã đầy, không lưu thêm được. Hãy xoá bớt tài liệu cũ trong mục Tài liệu của tôi.' : 'Không lưu được dữ liệu vào máy. Tiến độ có thể mất khi tải lại trang.', 'warn', 8000);
+  },
+  allBooks() { return this.run(['books'], 'readonly', t => t.objectStore('books').getAll()).then(r => r || []); },
+  getBook(id) { return this.run(['books'], 'readonly', t => t.objectStore('books').get(id)); },
+  putBook(b) { return this.run(['books'], 'readwrite', t => t.objectStore('books').put(b)); },
+  getParas(id) { return this.run(['paras'], 'readonly', t => t.objectStore('paras').getAll(IDBKeyRange.bound([id, 0], [id, Infinity]))).then(r => r || []); },
+  putParas(list) {
+    if (!list.length) return Promise.resolve();
+    return this.run(['paras'], 'readwrite', t => { const s = t.objectStore('paras'); for (const p of list) s.put({ b: p.b, i: p.i, s: p.s, t: p.t || '', st: p.st === 3 ? 0 : p.st, k: p.k, pg: p.pg, ed: p.ed || 0 }); return null; });
+  },
+  deleteBook(id) {
+    return this.run(['books', 'paras'], 'readwrite', t => { t.objectStore('books').delete(id); t.objectStore('paras').delete(IDBKeyRange.bound([id, 0], [id, Infinity])); return null; });
+  }
+};
+
+/* =====================================================================
+   2. ĐỌC PDF: đọc từng trang bằng pdf.js, ghép dòng thành đoạn văn sạch
+   - ghép dòng bị ngắt, nối từ gạch nối cuối dòng
+   - bỏ số trang và tiêu đề đầu/chân trang lặp lại
+   - dùng bảng mã CJK (cMap) để đọc đúng chữ Trung/Nhật/Hàn
+   ===================================================================== */
+const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+const PDFJS_ASSETS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/';
+async function waitLib(name, ms = 15000) {
+  const t0 = Date.now();
+  while (!window[name]) { if (Date.now() - t0 > ms) return false; await sleep(100); }
+  return true;
+}
+const Import = { cancel: false };
+
+async function readPdf(file, onProgress) {
+  if (!await waitLib('pdfjsLib')) throw new UserError('Không tải được bộ đọc PDF. Lần đầu dùng cần có mạng để tải thư viện — hãy kiểm tra kết nối rồi tải lại trang.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_CDN + 'pdf.worker.min.js';
+  const buf = await file.arrayBuffer();
+  let password, pdf, wrong = false;
+  for (;;) {
+    try {
+      pdf = await pdfjsLib.getDocument({
+        data: new Uint8Array(buf.slice(0)), password,
+        cMapUrl: PDFJS_ASSETS + 'cmaps/', cMapPacked: true,
+        standardFontDataUrl: PDFJS_ASSETS + 'standard_fonts/', isEvalSupported: false
+      }).promise;
+      break;
+    } catch (e) {
+      if (e && e.name === 'PasswordException') {
+        password = await askPassword(wrong || e.code === 2);
+        wrong = true;
+        if (password == null) throw new UserError('Đã huỷ mở tài liệu vì chưa nhập mật khẩu.');
+        continue;
+      }
+      if (e && e.name === 'InvalidPDFException') throw new UserError('File này không phải PDF hợp lệ hoặc đã bị hỏng.');
+      throw new UserError('Không mở được file PDF này. File có thể bị hỏng hoặc được tạo theo định dạng lạ.');
+    }
+  }
+  const n = pdf.numPages, pages = [];
+  let chars = 0;
+  for (let i = 1; i <= n; i++) {
+    if (Import.cancel) { pdf.destroy(); throw new UserError('Đã huỷ đọc tài liệu.'); }
+    let lines = [];
+    try { const page = await pdf.getPage(i); lines = await extractLines(page); page.cleanup(); } catch { lines = []; }
+    for (const l of lines) chars += l.text.length;
+    pages.push({ lines });
+    onProgress(i, n);
+    // PDF ảnh scan: 15 trang đầu gần như không có chữ thì dừng sớm, khỏi đọc hết
+    if (i === 15 && n > 20 && chars < 15 * 8) { pdf.destroy(); throw new UserError('SCAN'); }
+    if (i % 4 === 0) await sleep(0); // nhường luồng để giao diện không bị đơ
+  }
+  if (chars < Math.max(40, n * 12)) { pdf.destroy(); throw new UserError('SCAN'); }
+  let info = {}; try { info = (await pdf.getMetadata()).info || {}; } catch {}
+  let outline = null; try { outline = await readOutline(pdf); } catch {}
+  pdf.destroy();
+  return { pages, numPages: n, metaTitle: info.Title, outline };
+}
+
+// Lấy các dòng chữ của một trang: gom các mẩu chữ cùng độ cao y thành một dòng.
+// Dòng chữ Ả Rập/Do Thái (viết phải → trái) được xếp lại theo vị trí từ phải sang trái.
+const RE_MARK = /^[\p{M}\s]+$/u;
+async function extractLines(page) {
+  const tc = await page.getTextContent();
+  const lines = []; let cur = null;
+  const push = () => {
+    if (!cur) return;
+    let rtlN = 0, ltrN = 0;
+    for (const it of cur.items) if (it.s.trim()) { if (it.rtl) rtlN += it.s.length; else ltrN += it.s.length; }
+    const rtl = rtlN > ltrN;
+    const items = rtl ? cur.items.map((it, k) => ({ ...it, k })).sort((a, b) => (b.x - a.x) || (RE_MARK.test(a.s) - RE_MARK.test(b.s)) || (a.k - b.k)) : cur.items;
+    let text = '', edge = null, hs = 0, hn = 0, x = Infinity, xr = -Infinity;
+    for (const it of items) {
+      if (!it.s.trim()) { if (text && !/\s$/.test(text)) text += ' '; continue; }
+      if (edge != null) {
+        const gap = rtl ? edge - (it.x + it.w) : it.x - edge;
+        const a = text.slice(-1), b = it.s[0];
+        if (gap > it.h * 0.15 && !/\s/.test(a) && !/\s/.test(b) && !(isCJK(a) && isCJK(b)) && !RE_MARK.test(it.s)) text += ' ';
+      }
+      text += RE_MARK.test(it.s) ? it.s.trim() : it.s;
+      edge = rtl ? Math.min(edge ?? Infinity, it.x) : Math.max(edge ?? -Infinity, it.x + it.w);
+      x = Math.min(x, it.x); xr = Math.max(xr, it.x + it.w);
+      hs += it.h * it.s.length; hn += it.s.length;
+    }
+    text = cleanChars(text).replace(/\s+/g, ' ').trim();
+    // PDF xếp chữ Ả Rập theo thứ tự hiển thị hay làm đảo chữ ghép của mạo từ "ال" (vd: املنارة → المنارة)
+    if (rtl) text = text.replace(/(^|[\s(«"])ا([مجحخأإآ])ل/g, '$1ال$2');
+    if (text) lines.push({ text, x, xr, y: cur.y, h: hs / Math.max(1, hn), rtl });
+    cur = null;
+  };
+  for (const it of tc.items) {
+    if (typeof it.str !== 'string' || !it.str) continue;
+    const tr = it.transform;
+    const o = { s: it.str, x: tr[4], y: tr[5], w: it.width || 0, h: Math.abs(tr[3]) || Math.hypot(tr[2], tr[3]) || it.height || 10, rtl: it.dir === 'rtl' };
+    if (!o.s.trim()) { if (cur) cur.items.push(o); continue; }
+    if (!cur || Math.abs(o.y - cur.y) > Math.max(o.h, cur.h) * 0.55) { push(); cur = { y: o.y, h: o.h, items: [] }; }
+    cur.items.push(o);
+  }
+  push();
+  return lines;
+}
+// Chuẩn hoá ký tự lạ hay gặp trong PDF: bộ thủ Khang Hy (⼭→山), chữ ghép (ﬁ→fi)
+const RADICALS = Object.fromEntries([...'⺟母⺠民⻁虎⻄西⻅见⻆角⻉贝⻋车⻓长⻔门⻘青⻙韦⻚页⻛风⻜飞⻝食⻢马⻣骨⻤鬼⻥鱼⻦鸟⻧卤⻨麦⻩黄⻬齐⻮齿⻰龙⻳龟'].reduce((a, c, i, arr) => (i % 2 ? a : a.concat([[c, arr[i + 1]]])), []));
+function cleanChars(s) {
+  return s.replace(/[\u2E80-\u2FDF\uFB00-\uFB06]/g, c => RADICALS[c] || c.normalize('NFKC')).replace(/\u00A0/g, ' ');
+}
+
+// Mục lục (bookmark) có sẵn trong PDF → [{title, page}]
+async function readOutline(pdf) {
+  const ol = await pdf.getOutline();
+  if (!ol || !ol.length) return null;
+  let items = ol;
+  if (items.length < 3) { // gốc chỉ có 1–2 mục (vd: tên sách) thì lấy cấp con
+    const kids = items.flatMap(it => it.items || []);
+    if (kids.length >= 3) items = kids;
+  }
+  const out = [];
+  for (const it of items) {
+    try {
+      let dest = it.dest;
+      if (typeof dest === 'string') dest = await pdf.getDestination(dest);
+      if (!Array.isArray(dest)) continue;
+      const ref = dest[0];
+      const page = typeof ref === 'number' ? ref : await pdf.getPageIndex(ref);
+      const title = String(it.title || '').replace(/\s+/g, ' ').trim();
+      if (title) out.push({ title, page });
+    } catch {}
+  }
+  out.sort((a, b) => a.page - b.page);
+  return out.length >= 2 ? out : null;
+}
+
+// Cỡ chữ thân bài: trung vị theo số ký tự
+function bodyFontSize(pages) {
+  const m = new Map();
+  for (const p of pages) for (const l of p.lines) { const k = Math.round(l.h * 2) / 2; m.set(k, (m.get(k) || 0) + l.text.length); }
+  let best = 10, bc = -1; for (const [k, c] of m) if (c > bc) { bc = c; best = k; }
+  return best || 10;
+}
+
+// Bỏ số trang và đầu/chân trang lặp lại (chỉ xét 2 dòng trên cùng & 2 dòng dưới cùng mỗi trang)
+const PAGE_NUM_RE = /^(?:[-–—~·•\s]*(?:page|trang|p\.|seite|página|pagina|страница)?\s*[0-9]{1,4}(?:\s*(?:\/|of|trên|sur|von|de|di)\s*[0-9]{1,4})?[-–—~·•\s]*|[-–—\s]*[ivxlcdm]{1,7}[-–—\s]*|第\s*[0-9]+\s*[页頁]|[0-9]+\s*페이지|-\s*[0-9]+\s*-)$/i;
+function stripHeadersFooters(pages, body) {
+  const norm = s => s.replace(/[0-9]+/g, '#').replace(/\s+/g, ' ').trim().toLowerCase();
+  const edges = p => {
+    const idx = p.lines.map((l, i) => i).sort((a, b) => p.lines[b].y - p.lines[a].y);
+    if (idx.length <= 2) return new Set(idx);
+    return new Set([idx[0], idx[1], idx[idx.length - 1], idx[idx.length - 2]]);
+  };
+  const count = new Map(), n = pages.length;
+  for (const p of pages) {
+    const seen = new Set();
+    for (const i of edges(p)) { const k = norm(p.lines[i].text); if (!seen.has(k)) { seen.add(k); count.set(k, (count.get(k) || 0) + 1); } }
+  }
+  const thr = Math.max(3, n * 0.2);
+  for (const p of pages) {
+    const e = edges(p);
+    p.lines = p.lines.filter((l, i) => {
+      if (!e.has(i)) return true;
+      const t = l.text.trim();
+      if (PAGE_NUM_RE.test(t)) return false;
+      if (n >= 4 && count.get(norm(t)) >= thr && l.h <= body * 1.15 && !isChapterLine(t) && t.length < 400) return false;
+      return true;
+    });
+  }
+}
+
+const endsSentence = s => /[.!?…:;。！？；：」』”"’»)\]）】]$/.test(s.trim());
+function joinText(a, b) {
+  a = a.replace(/\u00AD$/, '');
+  if (/\p{L}[-‐]$/u.test(a) && /^\p{Ll}/u.test(b)) return a.slice(0, -1) + b; // nối từ gạch nối
+  if (isCJK(a.slice(-1)) || isCJK(b[0])) return a + b; // chữ Trung/Nhật không cần dấu cách
+  return a.replace(/\s+$/, '') + ' ' + b.replace(/^\s+/, '');
+}
+function modeOf(arr) { const m = new Map(); let best = arr[0] || 0, bc = 0; for (const v of arr) { const c = (m.get(v) || 0) + 1; m.set(v, c); if (c > bc) { bc = c; best = v; } } return best; }
+
+// Ghép các dòng thành đoạn văn. Kết quả: [{s: chữ, k: 'p' | 'h' (tiêu đề), pg: số trang}]
+function buildParagraphs(pages, body) {
+  const out = []; let cur = null, lastShort = false;
+  const flush = () => { if (cur) { cur.s = cur.s.replace(/\s+/g, ' ').trim(); if (cur.s) out.push(cur); } cur = null; };
+  pages.forEach((pg, pi) => {
+    const L = pg.lines; if (!L.length) return;
+    const left = modeOf(L.map(l => Math.round(l.x / 2) * 2));
+    const right = percentile(L.map(l => l.xr), 0.85);
+    const rightM = modeOf(L.map(l => Math.round(l.xr / 2) * 2)), leftP = percentile(L.map(l => l.x), 0.15);
+    const gaps = []; for (let i = 1; i < L.length; i++) { const g = L[i - 1].y - L[i].y; if (g > 0 && g < body * 4) gaps.push(g); }
+    const lineGap = gaps.length ? median(gaps) : body * 1.3;
+    for (let i = 0; i < L.length; i++) {
+      const l = L[i], prev = i ? L[i - 1] : null;
+      const chap = l.text.length <= 80 && isChapterLine(l.text);
+      const heading = chap || (l.h > body * 1.15 && l.text.length < 140);
+      if (heading) {
+        if (!chap && cur && cur.k === 'h' && prev && Math.abs(prev.h - l.h) < body * 0.15 && prev.y - l.y > 0 && prev.y - l.y < l.h * 2.2) { cur.s = joinText(cur.s, l.text); continue; }
+        flush(); cur = { s: l.text, k: 'h', pg: pi }; lastShort = true; continue;
+      }
+      // chữ viết phải → trái (Ả Rập…): thụt đầu dòng ở bên phải, dòng ngắn kết thúc ở bên trái
+      const indent = l.rtl ? l.xr < rightM - body * 0.9 && (!prev || Math.abs(prev.xr - l.xr) > body * 0.5)
+        : l.x > left + body * 0.9 && (!prev || Math.abs(prev.x - l.x) > body * 0.5);
+      let brk;
+      if (!cur || cur.k === 'h') brk = true;
+      else if (!prev || prev.y - l.y < 0) brk = endsSentence(cur.s) && (indent || lastShort); // sang trang/cột mới
+      else {
+        const g = prev.y - l.y;
+        brk = g > lineGap * 1.45 || indent || (lastShort && endsSentence(cur.s));
+      }
+      if (brk) { flush(); cur = { s: l.text, k: 'p', pg: pi }; }
+      else cur.s = joinText(cur.s, l.text);
+      lastShort = l.rtl ? l.x > leftP + body * 2 : l.xr < right - body * 2;
+    }
+  });
+  flush();
+  return out;
+}
+
+/* =====================================================================
+   3. CHIA CHƯƠNG: ưu tiên mục lục PDF → dò dòng "Chương/Chapter/第…章"
+      → nếu vẫn không được thì chia theo nhóm trang
+   ===================================================================== */
+const CH_NUM_RE = /^(chương|chuong|chapter|chap\.|phần|part|book|quyển|hồi|tập|chapitre|partie|livre|capítulo|capitulo|parte|kapitel|teil|глава|часть|bölüm)\s*([0-9]+|[ivxlcdm]+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|[a-z]+teen|twenty[a-z-]*|thirty[a-z-]*|forty[a-z-]*|fifty[a-z-]*|premier|première|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười)(?=$|[\s.:\-–—,])/i;
+const CH_WORD_RE = /^(prologue|epilogue|épilogue|introduction|preface|préface|foreword|afterword|lời mở đầu|lời nói đầu|mở đầu|lời kết|vĩ thanh|phụ lục|prólogo|epílogo|序章|终章|終章|楔子|序言|前言|后记|後記|尾声|尾聲|プロローグ|エピローグ|はじめに|あとがき|서문|프롤로그|에필로그)\s*([:.\-–—].{0,50})?$/i;
+const CH_CJK_RE = /^(第\s*[0-9\uFF10-\uFF19零〇一二三四五六七八九十百千两兩]+\s*[章回节節卷部篇话話幕]|제\s*[0-9]+\s*[장화부편]|[0-9]+\s*장\b|(الفصل|الباب)\s)/;
+function isChapterLine(t) {
+  t = t.trim(); if (!t || t.length > 80) return false;
+  return CH_NUM_RE.test(t) || CH_WORD_RE.test(t) || CH_CJK_RE.test(t);
+}
+
+function splitChapters(paras, outline, numPages) {
+  let chs = null, method = 'pages';
+  if (outline) { chs = chaptersFromOutline(paras, outline); if (chs.length >= 2) method = 'outline'; else chs = null; }
+  if (!chs) { chs = chaptersFromHeadings(paras); if (chs.length >= 2) method = 'headings'; else chs = null; }
+  if (!chs) chs = chaptersByPages(paras, numPages);
+  // sắp xếp, bỏ trùng, thêm phần đầu sách nếu có chữ trước chương đầu
+  chs.sort((a, b) => a.start - b.start);
+  chs = chs.filter((c, i) => c.start < paras.length && (i === 0 || c.start > chs[i - 1].start));
+  if (chs.length && chs[0].start > 0) chs.unshift({ start: 0, title: 'Phần mở đầu', head: -1, sub: -1, front: true });
+  if (!chs.length) chs = [{ start: 0, title: 'Toàn bộ tài liệu', head: -1, sub: -1, front: true }];
+  chs.forEach((c, i) => { c.end = i + 1 < chs.length ? chs[i + 1].start : paras.length; c.tr = c.tr || ''; });
+  return { chapters: chs, method };
+}
+function normTitle(s) { return s.toLowerCase().replace(/[\s\p{P}]+/gu, ''); }
+function chaptersFromOutline(paras, outline) {
+  const out = [];
+  for (const o of outline) {
+    let first = paras.findIndex(p => p.pg >= o.page);
+    if (first < 0) continue;
+    const nt = normTitle(o.title).slice(0, 14);
+    let head = -1;
+    for (let i = first; i < paras.length && paras[i].pg <= o.page; i++) {
+      const np = normTitle(paras[i].s);
+      if (nt && paras[i].s.length < 200 && (np.startsWith(nt) || nt.startsWith(np.slice(0, 14)) && np.length >= 2)) { head = i; break; }
+    }
+    if (head >= 0) first = head;
+    const sub = head >= 0 && paras[head + 1] && paras[head + 1].k === 'h' && paras[head + 1].s.length < 120 ? head + 1 : -1;
+    out.push({ start: first, title: o.title, head, sub });
+  }
+  return out;
+}
+function chaptersFromHeadings(paras) {
+  let cand = [];
+  paras.forEach((p, i) => { if (p.s.length <= 80 && isChapterLine(p.s)) cand.push(i); });
+  // bỏ các dòng trong trang mục lục (nhiều tiêu đề liền nhau, mỗi "chương" chỉ 1–2 đoạn)
+  cand = cand.filter((c, k) => k === cand.length - 1 || cand[k + 1] - c > 2);
+  return cand.map(i => ({ start: i, title: paras[i].s, head: i, sub: paras[i + 1] && paras[i + 1].k === 'h' && paras[i + 1].s.length < 120 && !isChapterLine(paras[i + 1].s) ? i + 1 : -1 }));
+}
+function chaptersByPages(paras, numPages) {
+  const size = numPages <= 60 ? 5 : numPages <= 300 ? 10 : 20;
+  const out = [];
+  for (let p = 0; p < numPages; p += size) {
+    const start = paras.findIndex(x => x.pg >= p);
+    if (start < 0) break;
+    out.push({ start, auto: true, p1: p, p2: Math.min(numPages, p + size) - 1, head: -1, sub: -1, title: '' });
+  }
+  return out;
+}
+
+/* =====================================================================
+   4. NHẬN DIỆN NGÔN NGỮ GỐC (đoán theo bảng chữ và từ hay gặp)
+   ===================================================================== */
+function detectLang(text) {
+  const s = text.slice(0, 40000);
+  const c = re => (s.match(re) || []).length;
+  const han = c(/[\u4E00-\u9FFF]/g), kana = c(/[\u3040-\u30FF]/g), hangul = c(/[\uAC00-\uD7AF]/g), arab = c(/[\u0600-\u06FF]/g),
+    cyr = c(/[\u0400-\u04FF]/g), thai = c(/[\u0E00-\u0E7F]/g), deva = c(/[\u0900-\u097F]/g), latin = c(/[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]/g);
+  const max = Math.max(han + kana, hangul, arab, cyr, thai, deva, latin);
+  if (!max) return 'auto';
+  if (max === han + kana) {
+    if (kana > (han + kana) * 0.08) return 'ja';
+    const trad = c(/[這們說來國會為與個書學時後裡麼聽見點]/g), simp = c(/[这们说来国会为与个书学时后里么听见点]/g);
+    return trad > simp * 1.2 ? 'zh-TW' : 'zh-CN';
+  }
+  if (max === hangul) return 'ko'; if (max === arab) return 'ar'; if (max === cyr) return 'ru';
+  if (max === thai) return 'th'; if (max === deva) return 'hi';
+  if (c(/[ăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/gi) > latin * 0.02) return 'vi';
+  const freq = new Map();
+  for (const w of s.toLowerCase().split(/[^a-z\u00E0-\u00F6\u00F8-\u00FF]+/)) if (w) freq.set(w, (freq.get(w) || 0) + 1);
+  const words = {
+    en: 'the and of to is was that with he it', fr: 'le la les et des est une que dans pas', es: 'el los las y que una por con es del',
+    de: 'der die und das ist nicht ein ich zu mit', it: 'il che di non una per gli della sono è', pt: 'o os que não uma com para do da é',
+    nl: 'de het een en van niet dat ik is op', id: 'yang dan di itu dengan tidak ini ke dari untuk'
+  };
+  let best = 'en', bs = -1;
+  for (const [l, ws] of Object.entries(words)) { const sc = ws.split(' ').reduce((a, w) => a + (freq.get(w) || 0), 0); if (sc > bs) { bs = sc; best = l; } }
+  return best;
+}
+function countWords(text) {
+  const cjk = (text.match(/[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/g) || []).length;
+  const other = (text.replace(/[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/g, ' ').match(/[\p{L}\p{N}]+/gu) || []).length;
+  return cjk + other;
+}
+
+/* =====================================================================
+   5. BẢNG TÊN RIÊNG: thay tên bằng mã giữ chỗ (ZXQAA…) trước khi gửi,
+      dịch xong thay mã bằng tên đã định. Lưu riêng cho từng sách.
+   ===================================================================== */
+function compileGlossary(list) {
+  const items = (list || []).map(e => ({ s: (e.s || '').trim(), t: (e.t || '').trim() })).filter(e => e.s)
+    .sort((a, b) => b.s.length - a.s.length).slice(0, 676);
+  if (!items.length) return null;
+  const idx = new Map(); items.forEach((e, i) => { if (!idx.has(e.s)) idx.set(e.s, i); });
+  const pat = items.map(e => {
+    const q = e.s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return isCJK(e.s[0]) ? q : `(?<![\\p{L}\\p{N}])${q}(?![\\p{L}\\p{N}])`;
+  }).join('|');
+  const re = new RegExp(pat, 'gu');
+  const tok = i => 'ZXQ' + String.fromCharCode(65 + Math.floor(i / 26)) + String.fromCharCode(65 + (i % 26));
+  return {
+    protect: s => s.replace(re, m => tok(idx.get(m))),
+    restore: s => s.replace(/Z\s?X\s?Q\s?([A-Z])\s?([A-Z])/gi, (m, a, b) => {
+      const e = items[(a.toUpperCase().charCodeAt(0) - 65) * 26 + (b.toUpperCase().charCodeAt(0) - 65)];
+      return e ? (e.t || e.s) : m;
+    })
+  };
+}
+
+// Gợi ý tên riêng: tìm các cụm lặp lại nhiều lần trông giống tên người/địa danh
+const NAME_STOP = new Set('I The A An And But Or So If When Then There This That These Those He She It We You They His Her Its Our Your Their My Me Him Them What Who Why How Where Which Yes No Not Oh Mr Mrs Ms Dr Sir Madam Lord Lady Chapter Part Book Page One Two Three Four Five Six Seven Eight Nine Ten Monday Tuesday Wednesday Thursday Friday Saturday Sunday January February March April May June July August September October November December God All After Before Now Well Just Still Even As At In On Of For With From By To Le La Les Un Une Des Il Elle Ils Elles Je Tu Nous Vous Et Mais Ou Donc Ce Cette Ces Mon Ma Mes Son Sa Ses Der Die Das Ein Eine Und Ich Du Er Sie Es Wir Ihr El Los Las Y Yo Tú Él Ella Pero Chương Phần'.split(' '));
+const ZH_SURNAMES = '王李张張刘劉陈陳杨楊黄黃赵趙吴吳周徐孙孫马馬朱胡郭何高林罗羅郑鄭梁谢謝宋唐许許韩韓冯馮邓鄧曹彭曾肖萧蕭田董袁潘于蒋蔣蔡余杜叶葉程苏蘇魏吕呂丁任沈姚卢盧姜崔钟鍾谭譚陆陸汪范金石廖贾賈夏韦韋方白邹鄒孟熊秦邱江尹薛闫段雷侯龙龍史陶黎贺賀顾顧毛郝龚龔邵万萬钱錢严嚴武戴莫孔向汤湯慕容欧歐上官司马諸葛诸葛';
+const ZH_STOPCH = new Set('的了是在不有和人这這中大为為上个個国國我以要他时時来來用们們生到作地于於出就分对對成会會可主发發年动動同工也能下过過子说說产產种種面而方后後多定行学學又一着著么麼你她它们們吗嗎呢吧啊看见見想站走把被让讓从從向与與都很才还還笑听聽问問回去拿');
+function suggestNames(paras, lang, existing) {
+  const have = new Set((existing || []).map(e => e.s));
+  const text = paras.map(p => p.s).join('\n').slice(0, 3000000);
+  const res = new Map();
+  const add = (k, n = 1) => res.set(k, (res.get(k) || 0) + n);
+  if (/^zh/.test(lang)) {
+    const g2 = new Map(), g3 = new Map();
+    for (let i = 0; i < text.length - 1; i++) {
+      const a = text[i]; if (!ZH_SURNAMES.includes(a)) continue;
+      const b = text[i + 1], c = text[i + 2];
+      if (!/[\u4E00-\u9FFF]/.test(b) || ZH_STOPCH.has(b)) continue;
+      g2.set(a + b, (g2.get(a + b) || 0) + 1);
+      if (c && /[\u4E00-\u9FFF]/.test(c) && !ZH_STOPCH.has(c)) g3.set(a + b + c, (g3.get(a + b + c) || 0) + 1);
+    }
+    for (const [k, n] of g3) if (n >= 4 && n >= (g2.get(k.slice(0, 2)) || 0) * 0.6) { add(k, n); g2.delete(k.slice(0, 2)); }
+    for (const [k, n] of g2) if (n >= 5) add(k, n);
+  } else if (lang === 'ja') {
+    for (const m of text.matchAll(/[\u30A1-\u30FAー]{3,}/g)) add(m[0]);
+    for (const m of text.matchAll(/([\u4E00-\u9FFF]{1,4})(?=さん|様|君|くん|ちゃん|先生|殿)/g)) add(m[1]);
+    for (const [k, n] of res) if (n < 4) res.delete(k);
+  } else if (lang === 'ko') {
+    for (const m of text.matchAll(/([\uAC00-\uD7A3]{2,4})(?=씨|님|선배|오빠|언니|형|누나)/g)) add(m[1]);
+    for (const [k, n] of res) if (n < 3) res.delete(k);
+  } else {
+    const lower = new Map();
+    for (const m of text.matchAll(/(?<![\p{L}\p{N}])\p{Ll}[\p{Ll}'’-]+/gu)) lower.set(m[0], (lower.get(m[0]) || 0) + 1);
+    const re = /(?<![\p{L}\p{N}'’])(\p{Lu}[\p{Ll}'’-]+(?:\s(?:of\s|de\s|la\s|van\s|von\s|der\s|du\s|del\s|di\s)?\p{Lu}[\p{Ll}'’-]+){0,2})(?![\p{L}])/gu;
+    for (const p of paras) {
+      for (const m of p.s.matchAll(re)) {
+        const before = p.s.slice(Math.max(0, m.index - 3), m.index);
+        const atStart = m.index === 0 || /[.!?…"“”'‘«»:—–-]\s*$/.test(before);
+        if (atStart && !/\s/.test(m[1])) continue; // một chữ viết hoa đầu câu thì không tính
+        const words = m[1].split(/\s+/).filter(w => !NAME_STOP.has(w));
+        if (!words.length) continue;
+        const term = m[1].split(/\s+/).filter((w, i, arr) => !(NAME_STOP.has(w) && (i === 0 || i === arr.length - 1))).join(' ');
+        if (term.length < 2) continue;
+        if (!term.includes(' ') && (lower.get(term.toLowerCase()) || 0) > 2) continue; // từ thường viết hoa đầu câu
+        add(term);
+      }
+    }
+    for (const [k, n] of res) if (n < 3) res.delete(k);
+  }
+  return [...res].filter(([k]) => !have.has(k)).sort((a, b) => b[1] - a[1]).slice(0, 40).map(([term, count]) => ({ term, count }));
+}
+
+/* =====================================================================
+   6. DỊCH bằng Google Translate miễn phí (translate.googleapis.com, client=gtx)
+   - khối < 4.500 ký tự, cắt đúng chỗ hết đoạn; gộp đoạn ngắn vào 1 lượt
+   - tách lại bị lệch thì dịch lại từng đoạn
+   - chạy 1–4 lượt cùng lúc, nghỉ ngẫu nhiên; lỗi thì thử lại, chờ lâu dần
+   - bị chặn liên tục thì tự tạm dừng
+   ===================================================================== */
+const GT_URL = 'https://translate.googleapis.com/translate_a/single?client=gtx&dt=t';
+const MAX_CHUNK = 4500;
+const T = { state: 'idle', queue: [], workers: 0, ctrl: null, failStreak: 0, blockStreak: 0, t0: 0, c0: 0, msg: '' };
+class GTErr extends Error { constructor(kind, status) { super(kind); this.kind = kind; this.status = status; } }
+const abortErr = () => new DOMException('Đã dừng', 'AbortError');
+function sleepSig(ms, signal) {
+  return new Promise((res, rej) => {
+    if (signal && signal.aborted) return rej(abortErr());
+    const t = setTimeout(res, ms);
+    signal && signal.addEventListener('abort', () => { clearTimeout(t); rej(abortErr()); }, { once: true });
+  });
+}
+
+async function gtFetch(text, sl, tl, signal) {
+  const enc = encodeURIComponent(text);
+  const base = `${GT_URL}&sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}`;
+  let res;
+  try {
+    res = enc.length < 7000
+      ? await fetch(base + '&q=' + enc, { signal, credentials: 'omit' })
+      : await fetch(base, { method: 'POST', signal, credentials: 'omit', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body: 'q=' + enc });
+  } catch (e) {
+    if (e.name === 'AbortError') throw e;
+    throw new GTErr(navigator.onLine === false ? 'offline' : 'network'); // bị chặn cũng thường hiện thành lỗi mạng
+  }
+  if (res.status === 429 || res.status === 403) throw new GTErr('blocked', res.status);
+  if (!res.ok) throw new GTErr('http', res.status);
+  let data; try { data = await res.json(); } catch { throw new GTErr('parse'); }
+  if (!Array.isArray(data)) throw new GTErr('parse');
+  if (!Array.isArray(data[0])) return { text: '', lang: data[2] };
+  return { text: data[0].map(seg => (seg && typeof seg[0] === 'string') ? seg[0] : '').join(''), lang: data[2] };
+}
+
+async function gtRetry(text, sl, tl, signal) {
+  let wait = 1500, last;
+  for (let a = 0; a < 5; a++) {
+    if (signal && signal.aborted) throw abortErr();
+    try { const r = await gtFetch(text, sl, tl, signal); T.blockStreak = 0; return r; }
+    catch (e) {
+      if (e.name === 'AbortError') throw e;
+      last = e;
+      if (e.kind === 'parse' && a >= 1) break;
+      T.blockStreak++;
+      if (T.blockStreak >= 10) break;
+      await sleepSig(wait + Math.random() * wait * 0.5, signal);
+      wait = Math.min(wait * 2, 30000);
+    }
+  }
+  throw last;
+}
+
+// Cắt đoạn quá dài (> 4.500 ký tự) theo câu, không cắt giữa câu
+function chunkLong(text, max = MAX_CHUNK) {
+  const sents = text.match(/[^.!?。！？…]+[.!?。！？…]+["'”’»」』)\]]*\s*|[^.!?。！？…]+$/g) || [text];
+  const out = []; let cur = '';
+  for (let s of sents) {
+    while (s.length > max) { // một câu dài hơn cả khối: cắt ở dấu phẩy/khoảng trắng gần nhất
+      let cut = Math.max(s.lastIndexOf(', ', max), s.lastIndexOf('，', max), s.lastIndexOf(' ', max));
+      if (cut < max * 0.5) cut = max - 1;
+      if (cur) { out.push(cur); cur = ''; }
+      out.push(s.slice(0, cut + 1)); s = s.slice(cut + 1);
+    }
+    if ((cur + s).length > max) { if (cur) out.push(cur); cur = s; } else cur += s;
+  }
+  if (cur) out.push(cur);
+  return out.filter(x => x.trim());
+}
+
+function noteLang(l) { if (l && S.book && !S.book.gLang) { S.book.gLang = l; } }
+
+// Dịch một nhóm đoạn (theo số thứ tự). Trả về {chỉ số: bản dịch}
+async function translateIds(ids, signal) {
+  const b = S.book, sl = b.src || 'auto', tl = b.tgt, G = S.gloss;
+  // rest: trả tên riêng về đúng chữ đã định, bỏ ký tự vô hình Google hay chèn vào
+  const prot = s => G ? G.protect(s) : s, rest = s => (G ? G.restore(s) : s).replace(/[\u200B\uFEFF]/g, '');
+  if (ids.length === 1) {
+    const src = prot(S.paras[ids[0]].s);
+    if (src.length > MAX_CHUNK) {
+      const parts = [];
+      for (const ch of chunkLong(src)) { const r = await gtRetry(ch, sl, tl, signal); noteLang(r.lang); parts.push(r.text.trim()); await sleepSig(200 + Math.random() * 400, signal); }
+      return { [ids[0]]: rest(parts.join(' ').replace(/\s*\n\s*/g, ' ')) };
+    }
+    const r = await gtRetry(src, sl, tl, signal); noteLang(r.lang);
+    return { [ids[0]]: rest(r.text.replace(/\s*\n\s*/g, ' ').trim()) };
+  }
+  const r = await gtRetry(ids.map(i => prot(S.paras[i].s)).join('\n'), sl, tl, signal); noteLang(r.lang);
+  const parts = r.text.split('\n').map(s => s.trim()).filter(Boolean);
+  const out = {};
+  if (parts.length === ids.length) { ids.forEach((id, k) => out[id] = rest(parts[k])); return out; }
+  // tách lại bị lệch → dịch lại từng đoạn
+  for (const id of ids) { Object.assign(out, await translateIds([id], signal)); await sleepSig(150 + Math.random() * 350, signal); }
+  return out;
+}
+
+// Gộp các đoạn liên tiếp thành khối dưới 4.500 ký tự
+function buildJobs(ids) {
+  const jobs = []; let cur = [], len = 0;
+  const G = S.gloss;
+  for (const i of ids) {
+    const n = (G ? G.protect(S.paras[i].s) : S.paras[i].s).length;
+    if (n > MAX_CHUNK) { if (cur.length) jobs.push({ ids: cur }); cur = []; len = 0; jobs.push({ ids: [i] }); continue; }
+    if (cur.length && (len + n + 1 > MAX_CHUNK || cur.length >= 60)) { jobs.push({ ids: cur }); cur = []; len = 0; }
+    cur.push(i); len += n + 1;
+  }
+  if (cur.length) jobs.push({ ids: cur });
+  return jobs;
+}
+
+async function startTranslate(onlyErrors = false) {
+  if (!S.book || T.state === 'running') return;
+  while (T.workers > 0) await sleep(50); // chờ các lượt cũ dừng hẳn
+  const ids = [];
+  S.paras.forEach((p, i) => { if (onlyErrors ? p.st === 2 : p.st !== 1) ids.push(i); });
+  if (!ids.length) { toast(onlyErrors ? 'Không còn đoạn lỗi nào.' : 'Cả tài liệu đã được dịch xong.'); return; }
+  if (navigator.onLine === false) { toast('Máy đang mất mạng. Hãy kết nối mạng rồi bấm Dịch.', 'warn'); return; }
+  S.gloss = compileGlossary(S.book.glossary);
+  ids.forEach(i => { S.paras[i].st = 0; });
+  T.queue = buildJobs(ids); T.state = 'running'; T.ctrl = new AbortController();
+  T.failStreak = 0; T.blockStreak = 0; T.msg = ''; T.t0 = Date.now(); T.c0 = progressStats().doneChars;
+  S.book.tstate = 'running'; saveMeta(true);
+  renderControls(); refreshVisibleRows();
+  translateChapterTitles(T.ctrl.signal);
+  spawnWorkers();
+}
+function spawnWorkers() {
+  while (T.state === 'running' && T.workers < S.conc && T.queue.length) { T.workers++; worker(); }
+}
+async function worker() {
+  try {
+    while (T.state === 'running' && T.queue.length) {
+      if (T.workers > S.conc) break; // người dùng giảm số lượt cùng lúc
+      const job = T.queue.shift();
+      const sig = T.ctrl.signal;
+      try { await sleepSig(250 + Math.random() * 900, sig); } catch { T.queue.unshift(job); break; } // nghỉ ngẫu nhiên giữa các lượt
+      job.ids.forEach(i => { S.paras[i].st = 3; refreshRow(i); });
+      try {
+        const res = await translateIds(job.ids, sig);
+        for (const id of job.ids) { const p = S.paras[id]; p.t = res[id] || ''; p.st = p.t ? 1 : 2; p.ed = 0; if (p.k === 'h') S.tocDirty = true; }
+        T.failStreak = 0;
+      } catch (e) {
+        if (e.name === 'AbortError') { job.ids.forEach(i => { S.paras[i].st = 0; refreshRow(i); }); break; }
+        T.failStreak++;
+        if (T.failStreak >= 3 || T.blockStreak >= 10) {
+          job.ids.forEach(i => { S.paras[i].st = 0; refreshRow(i); });
+          autoPause();
+          break;
+        }
+        job.ids.forEach(i => { S.paras[i].st = 2; });
+      }
+      job.ids.forEach(refreshRow);
+      DB.putParas(job.ids.map(i => S.paras[i]));
+      onProgress();
+    }
+  } finally {
+    T.workers--;
+    if (T.workers === 0 && T.state === 'running' && !T.queue.length) finishTranslate();
+  }
+}
+function finishTranslate() {
+  T.state = 'idle'; S.book.tstate = 'idle'; saveMeta(true); onProgress(true); renderControls();
+  const st = progressStats();
+  if (st.err) toast(`Đã dịch xong, còn ${st.err} đoạn lỗi. Bấm "Dịch lại các đoạn lỗi" để thử lại.`, 'warn', 7000);
+  else toast('🎉 Đã dịch xong cả tài liệu!', 'info', 6000);
+}
+function autoPause() {
+  if (T.state !== 'running') return;
+  T.state = 'paused'; T.ctrl.abort();
+  T.msg = 'Google đang tạm chặn vì gửi quá nhiều, hoặc mạng đang lỗi. Chờ vài phút rồi bấm Tiếp tục.';
+  S.book.tstate = 'paused'; saveMeta(true); renderControls(); onProgress(true);
+  toast('Đã tự tạm dừng. Chờ vài phút rồi bấm Tiếp tục.', 'warn', 8000);
+}
+function pauseTranslate() {
+  if (T.state !== 'running') return;
+  T.state = 'paused'; T.ctrl.abort(); T.msg = '';
+  S.book.tstate = 'paused'; saveMeta(true); renderControls(); onProgress(true);
+}
+async function cancelTranslate() {
+  if (T.state === 'idle') return;
+  if (!await confirmBox('Huỷ dịch?', 'Phần đã dịch vẫn được giữ lại. Bạn có thể bấm Dịch để dịch tiếp phần còn lại bất cứ lúc nào.', 'Huỷ dịch')) return;
+  T.state = 'idle'; T.queue = []; T.ctrl && T.ctrl.abort(); T.msg = '';
+  S.book.tstate = 'idle'; saveMeta(true); renderControls(); onProgress(true);
+}
+// Dịch tiêu đề chương lấy từ mục lục PDF (không phải đoạn văn trong sách)
+async function translateChapterTitles(signal) {
+  const list = S.book.chapters.filter(c => !c.auto && !c.front && c.head < 0 && c.title && !c.tr);
+  if (!list.length) return;
+  try {
+    for (let k = 0; k < list.length; k += 40) {
+      const part = list.slice(k, k + 40), G = S.gloss;
+      const r = await gtRetry(part.map(c => G ? G.protect(c.title) : c.title).join('\n'), S.book.src || 'auto', S.book.tgt, signal);
+      const lines = r.text.split('\n').map(s => s.trim()).filter(Boolean);
+      if (lines.length === part.length) part.forEach((c, i) => c.tr = G ? G.restore(lines[i]) : lines[i]);
+    }
+    saveMeta(true); renderToc(); updateChapterHead();
+  } catch {}
+}
+// Dịch lại một đoạn (người dùng bấm)
+async function retranslateOne(i) {
+  const p = S.paras[i]; if (!p || p.st === 3) return;
+  if (S.editing === i) closeEditor(false);
+  S.gloss = compileGlossary(S.book.glossary);
+  p.st = 3; refreshRow(i);
+  try {
+    const r = await translateIds([i], undefined);
+    p.t = r[i] || ''; p.st = p.t ? 1 : 2; p.ed = 0;
+    if (!p.t) toast('Google không trả về bản dịch cho đoạn này.', 'warn');
+  } catch { p.st = 2; toast('Chưa dịch lại được đoạn này. Kiểm tra mạng hoặc chờ một lát rồi thử lại.', 'warn'); }
+  if (p.k === 'h') S.tocDirty = true;
+  refreshRow(i); DB.putParas([p]); onProgress(true);
+}
+
+/* =====================================================================
+   7. GIAO DIỆN ĐỌC: song ngữ/chỉ bản dịch, mục lục, sửa tay, tìm kiếm.
+      Chỉ vẽ phần đang xem: mỗi lần một chương, vẽ dần khi cuộn xuống.
+   ===================================================================== */
+const S = { book: null, paras: [], view: { ch: 0, end: 0, hl: '' }, editing: null, gloss: null, conc: 2, mode: 'bi', font: 18 };
+const BATCH = 60;
+
+function show(screen) {
+  for (const id of ['home', 'bookScreen', 'libScreen']) $('#' + id).hidden = id !== screen;
+  window.scrollTo(0, 0);
+}
+
+function chTitle(c, preferTr = true, lang = 'vi') {
+  if (c.auto) return (lang !== 'vi' ? 'Pages ' : 'Trang ') + (c.p1 + 1) + '–' + (c.p2 + 1);
+  if (c.front) return lang !== 'vi' ? 'Front matter' : 'Phần mở đầu';
+  const pick = i => { const p = S.paras[i]; return p ? (preferTr && p.st === 1 && p.t ? p.t : p.s) : ''; };
+  const cap = t => t.charAt(0).toUpperCase() + t.slice(1); // Google hay trả về chữ thường đầu tên chương
+  if (c.head >= 0) return cap(pick(c.head)) + (c.sub >= 0 ? ': ' + pick(c.sub) : '');
+  return cap((preferTr && c.tr) ? c.tr : c.title);
+}
+function chOf(i) {
+  const chs = S.book.chapters; let lo = 0, hi = chs.length - 1;
+  while (lo < hi) { const m = (lo + hi + 1) >> 1; if (chs[m].start <= i) lo = m; else hi = m - 1; }
+  return lo;
+}
+
+function progressStats() {
+  let done = 0, err = 0, doneChars = 0, totalChars = 0;
+  for (const p of S.paras) { totalChars += p.s.length; if (p.st === 1) { done++; doneChars += p.s.length; } else if (p.st === 2) err++; }
+  return { done, err, total: S.paras.length, doneChars, totalChars };
+}
+const estRate = () => S.conc * 1100; // ký tự/giây (ước tính ban đầu)
+
+let progT = 0, progTimer = null;
+function onProgress(force) {
+  if (!S.book) return;
+  const now = Date.now();
+  if (!force && now - progT < 400) { if (!progTimer) progTimer = setTimeout(() => { progTimer = null; onProgress(true); }, 420); return; }
+  progT = now;
+  const st = progressStats();
+  const pct = st.totalChars ? st.doneChars / st.totalChars * 100 : 0;
+  $('#progFill').style.width = pct.toFixed(1) + '%';
+  let eta;
+  const remain = st.totalChars - st.doneChars;
+  if (T.state === 'running') {
+    const el = (now - T.t0) / 1000, gained = st.doneChars - T.c0;
+    eta = el > 8 && gained > 0 ? remain / (gained / el) : remain / estRate();
+  } else eta = remain / estRate();
+  let txt = `${pct >= 99.95 && remain === 0 ? 100 : pct.toFixed(pct < 10 ? 1 : 0)}% · ${fmt(st.done)}/${fmt(st.total)} đoạn`;
+  if (remain > 0) txt += (T.state === 'running' ? ' · còn khoảng ' : ' · ước tính ') + fmtDur(eta);
+  if (st.err) txt += ` · <span style="color:var(--err)">${fmt(st.err)} đoạn lỗi</span>`;
+  if (T.state === 'running') txt = '<b>Đang dịch…</b> ' + txt;
+  else if (T.state === 'paused') txt = '<b>Đã tạm dừng.</b> ' + txt;
+  $('#progText').innerHTML = txt;
+  $('#btnRetryErr').hidden = !st.err || T.state === 'running';
+  $('#btnRetryErr').textContent = `↻ Dịch lại các đoạn lỗi (${st.err})`;
+  // tiến độ từng chương trong mục lục (và tên chương nếu vừa được dịch)
+  const items = $('#tocList').children;
+  if (S.tocDirty) { S.tocDirty = false; S.book.chapters.forEach((c, k) => { if (items[k]) items[k].querySelector('.t').textContent = chTitle(c, true); }); }
+  S.book.chapters.forEach((c, k) => {
+    let a = 0, d = 0; for (let i = c.start; i < c.end; i++) { const n = S.paras[i].s.length; a += n; if (S.paras[i].st === 1) d += n; }
+    const w = a ? (d / a * 100).toFixed(0) + '%' : '0%';
+    if (items[k]) items[k].querySelector('.mini i').style.width = w;
+    if (k === S.view.ch) $('#chProg').textContent = `Phần này: đã dịch ${w}`;
+  });
+  if ((S.book.done === st.total) !== (st.done === st.total)) setTimeout(renderControls);
+  S.book.done = st.done; S.book.err = st.err; S.book.total = st.total; S.book.pct = pct;
+  saveMeta();
+}
+
+let metaT = 0, metaTimer = null;
+function saveMeta(now) {
+  if (!S.book) return;
+  const doSave = () => { metaT = Date.now(); S.book.updated = Date.now(); DB.putBook(S.book); };
+  if (now) { clearTimeout(metaTimer); metaTimer = null; doSave(); return; }
+  if (Date.now() - metaT > 2000) doSave();
+  else if (!metaTimer) metaTimer = setTimeout(() => { metaTimer = null; doSave(); }, 2000);
+}
+
+function renderControls() {
+  const s = T.state, st = S.book ? progressStats() : { done: 0 };
+  $('#btnStart').hidden = s !== 'idle';
+  const allDone = S.book && st.done === st.total;
+  $('#btnStart').textContent = allDone ? '✓ Đã dịch xong' : st.done > 0 ? '▶ Dịch tiếp' : '▶ Dịch';
+  $('#btnStart').disabled = allDone;
+  $('#btnPause').hidden = s !== 'running';
+  $('#btnResume').hidden = s !== 'paused';
+  $('#btnCancel').hidden = s === 'idle';
+  $('#runMsg').hidden = !T.msg; $('#runMsg').textContent = T.msg;
+  $('#selSrc').disabled = s === 'running';
+  $('#selTgt').disabled = s === 'running';
+}
+
+function renderBook() {
+  const b = S.book;
+  $('#bTitle').textContent = b.title;
+  document.title = b.title + ' – Dịch Tài Liệu PDF';
+  const methodTxt = { outline: 'theo mục lục PDF', headings: 'theo tiêu đề', pages: 'theo nhóm trang' }[b.method] || '';
+  $('#bStats').textContent = `${fmt(b.pages)} trang · ${fmt(b.chapters.length)} phần (${methodTxt}) · ${fmt(b.words)} chữ · ước tính dịch ${fmtDur(b.chars / estRate())}`;
+  const sel = $('#selSrc');
+  sel.innerHTML = LANGS.map(([c, n]) => `<option value="${c}">${c === 'auto' ? `${n}${b.detected && b.detected !== 'auto' ? ' (' + langName(b.detected) + ')' : ''}` : n}</option>`).join('');
+  sel.value = b.src || 'auto';
+  $('#selTgt').innerHTML = LANGS.filter(([c]) => c !== 'auto').map(([c, n]) => `<option value="${c}">${n}</option>`).join('');
+  $('#selTgt').value = b.tgt;
+  $('#selConc').value = String(S.conc);
+  renderToc(); renderControls(); onProgress(true);
+}
+
+function renderToc() {
+  const b = S.book; if (!b) return;
+  $('#tocList').innerHTML = b.chapters.map((c, k) => `<li data-c="${k}" class="${k === S.view.ch ? 'active' : ''}"><span class="t" dir="auto">${esc(chTitle(c, true))}</span><span class="mini"><i></i></span></li>`).join('');
+  onProgress(true);
+}
+
+function trHtml(p) {
+  if (p.st === 1 && p.t) return hl(p.t);
+  if (p.st === 3) return `<span class="ph">Đang dịch</span><span class="ph-src">${hl(p.s)}</span>`;
+  if (p.st === 2) return `<span class="ph">⚠ Dịch lỗi — chạm để dịch lại</span><span class="ph-src">${hl(p.s)}</span>`;
+  return `<span class="ph">Chưa dịch</span><span class="ph-src">${hl(p.s)}</span>`;
+}
+function trClass(p) { return p.st === 1 ? 'tr' : p.st === 2 ? 'tr err pending' : p.st === 3 ? 'tr busy pending' : 'tr pending'; }
+const ACCENTS = { a: 'aàáảãạăằắẳẵặâầấẩẫậ', e: 'eèéẻẽẹêềếểễệ', i: 'iìíỉĩị', o: 'oòóỏõọôồốổỗộơờớởỡợ', u: 'uùúủũụưừứửữự', y: 'yỳýỷỹỵ', d: 'dđ' };
+function accentRegex(q) {
+  return new RegExp([...normS(q)].map(c => ACCENTS[c] ? `[${ACCENTS[c]}]` : c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join(''), 'gi');
+}
+function hl(text) {
+  const q = S.view.hl;
+  if (!q) return esc(text);
+  const re = accentRegex(q);
+  let out = '', last = 0;
+  for (const m of text.matchAll(re)) { out += esc(text.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>'; last = m.index + m[0].length; }
+  return out + esc(text.slice(last));
+}
+function rowEl(i) {
+  const p = S.paras[i];
+  const d = document.createElement('div');
+  d.className = 'row' + (p.k === 'h' ? ' h' : ''); d.dataset.i = i;
+  d.innerHTML = `<div class="src" dir="auto">${hl(p.s)}</div><div class="${trClass(p)}" dir="auto" tabindex="0">${trHtml(p)}</div>`;
+  return d;
+}
+const rowOf = i => $(`#rows .row[data-i="${i}"]`);
+function refreshRow(i) {
+  if (S.editing === i) return;
+  const r = rowOf(i); if (!r) { return; }
+  const p = S.paras[i], cell = r.querySelector('.tr');
+  cell.className = trClass(p); cell.innerHTML = trHtml(p);
+  const c = S.book.chapters[S.view.ch];
+  if (c && (i === c.head || i === c.sub)) updateChapterHead();
+}
+function refreshVisibleRows() { $$('#rows .row').forEach(r => refreshRow(+r.dataset.i)); }
+function updateChapterHead() { const c = S.book && S.book.chapters[S.view.ch]; if (c) $('#chTitle').textContent = chTitle(c, true); }
+
+function openChapter(ci, target = null) {
+  const b = S.book; if (!b) return;
+  ci = Math.max(0, Math.min(b.chapters.length - 1, ci));
+  closeEditor();
+  S.view.ch = ci; b.lastCh = ci; saveMeta();
+  const c = b.chapters[ci];
+  $('#rows').innerHTML = ''; S.view.end = c.start;
+  updateChapterHead();
+  renderMore(target != null ? target + 20 : c.start + BATCH);
+  $$('#tocList li').forEach(li => li.classList.toggle('active', +li.dataset.c === ci));
+  const act = $('#tocList li.active'); act && act.scrollIntoView({ block: 'nearest' });
+  for (const id of ['#prevCh', '#prevTop']) $(id).disabled = ci === 0;
+  for (const id of ['#nextCh', '#nextTop']) $(id).disabled = ci >= b.chapters.length - 1;
+  closeToc(); onProgress(true);
+  if (target != null) {
+    const r = rowOf(target);
+    if (r) { const y = r.getBoundingClientRect().top + window.scrollY - 140; window.scrollTo({ top: y }); r.classList.add('flash'); setTimeout(() => r.classList.remove('flash'), 1700); }
+  } else {
+    const head = $('.bookhead'); window.scrollTo({ top: head ? head.offsetHeight : 0 });
+  }
+}
+function renderMore(upto) {
+  const c = S.book.chapters[S.view.ch]; upto = Math.min(upto, c.end);
+  if (upto <= S.view.end) { $('#sentinel').hidden = S.view.end >= c.end; return; }
+  const frag = document.createDocumentFragment();
+  for (let i = S.view.end; i < upto; i++) frag.appendChild(rowEl(i));
+  $('#rows').appendChild(frag); S.view.end = upto;
+  $('#sentinel').hidden = S.view.end >= c.end;
+}
+const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting) && S.book) renderMore(S.view.end + BATCH); }, { rootMargin: '900px 0px' });
+
+// Sửa tay bản dịch: chạm vào đoạn dịch → ô sửa, tự lưu
+function openEditor(i) {
+  closeEditor();
+  const r = rowOf(i); if (!r) return;
+  const p = S.paras[i], cell = r.querySelector('.tr');
+  S.editing = i;
+  cell.className = 'tr editing';
+  cell.innerHTML = `<textarea dir="auto" aria-label="Sửa bản dịch" placeholder="Gõ bản dịch của bạn…"></textarea>
+    <div class="ed-bar"><button type="button" data-act="retr">↻ ${p.st === 1 ? 'Dịch lại đoạn này' : 'Dịch đoạn này'}</button><span class="sp"></span><span class="muted ed-hint">Tự động lưu</span><button type="button" class="primary" data-act="done">Xong</button></div>`;
+  const ta = cell.querySelector('textarea');
+  ta.value = p.st === 1 ? p.t : '';
+  const fit = () => { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 4) + 'px'; };
+  const save = debounce(() => saveEdit(i, ta.value), 500);
+  ta.addEventListener('input', () => { fit(); save(); cell.querySelector('.ed-hint').textContent = 'Đang lưu…'; });
+  ta.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); closeEditor(); } });
+  cell._ta = ta;
+  fit(); ta.focus();
+}
+function saveEdit(i, val) {
+  const p = S.paras[i]; val = val.trim();
+  if (val) { p.t = val; p.st = 1; p.ed = 1; } else if (p.st === 1) { p.t = ''; p.st = 0; p.ed = 0; }
+  if (p.k === 'h') S.tocDirty = true;
+  DB.putParas([p]); onProgress();
+  const r = rowOf(i); const h = r && r.querySelector('.ed-hint'); if (h) h.textContent = 'Đã lưu ✓';
+}
+function closeEditor(save = true) {
+  if (S.editing == null) return;
+  const i = S.editing, r = rowOf(i), ta = r && r.querySelector('.tr')._ta;
+  if (save && ta) { const v = ta.value.trim(), p = S.paras[i]; if (v !== (p.st === 1 ? p.t : '')) saveEdit(i, ta.value); }
+  S.editing = null; refreshRow(i);
+}
+
+// Tìm kiếm trong cả bản gốc lẫn bản dịch (không phân biệt dấu, hoa/thường)
+const normS = s => s.normalize('NFD').replace(/[\u0300-\u036F]/g, '').replace(/[đĐ]/g, 'd').toLowerCase();
+function doSearch(q) {
+  const box = $('#sres');
+  q = q.trim();
+  if (q.length < 2) { box.hidden = true; if (S.view.hl) { S.view.hl = ''; refreshAllText(); } return; }
+  const nq = normS(q), out = [];
+  for (let i = 0; i < S.paras.length && out.length < 200; i++) {
+    const p = S.paras[i];
+    if (p._ns === undefined) p._ns = normS(p.s);
+    if (p._ntv !== p.t) { p._ntv = p.t; p._nt = p.t ? normS(p.t) : ''; }
+    const inS = p._ns.indexOf(nq), inT = p.st === 1 ? p._nt.indexOf(nq) : -1;
+    if (inS >= 0 || inT >= 0) {
+      const txt = inT >= 0 ? p.t : p.s, at = inT >= 0 ? inT : inS;
+      out.push({ i, snip: (at > 40 ? '…' : '') + txt.slice(Math.max(0, at - 40), at + q.length + 70) + '…', where: inT >= 0 ? 'bản dịch' : 'bản gốc' });
+    }
+  }
+  box.innerHTML = out.length
+    ? `<div class="muted small" style="padding:6px 10px">${out.length >= 200 ? 'Hơn 200' : out.length} kết quả</div>` + out.map(r => `<div class="it" data-i="${r.i}"><b>${esc(chTitle(S.book.chapters[chOf(r.i)], true).slice(0, 60))} · ${r.where}</b><span dir="auto">${esc(r.snip)}</span></div>`).join('')
+    : '<div class="muted" style="padding:10px">Không tìm thấy kết quả nào.</div>';
+  box.hidden = false;
+}
+function refreshAllText() { $$('#rows .row').forEach(r => { const i = +r.dataset.i; r.querySelector('.src').innerHTML = hl(S.paras[i].s); refreshRow(i); }); }
+
+function setMode(m) {
+  S.mode = m; store.set('mode', m);
+  $('#rows').classList.toggle('mode-tr', m === 'tr');
+  $$('#segMode button').forEach(b => b.classList.toggle('on', b.dataset.v === m));
+}
+function setFont(px) {
+  S.font = Math.max(13, Math.min(30, px)); store.set('font', S.font);
+  document.documentElement.style.setProperty('--reader-size', S.font + 'px');
+}
+function setTheme(t) {
+  if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+  store.set('theme', t || '');
+}
+function openToc() { $('#toc').classList.add('open'); $('#tocBackdrop').classList.add('open'); }
+function closeToc() { $('#toc').classList.remove('open'); $('#tocBackdrop').classList.remove('open'); }
+
+/* ---------- Bảng tên riêng: hộp thoại ---------- */
+function openGlossary() {
+  const b = S.book; if (!b) return;
+  const rows = (b.glossary || []).map(e => ({ ...e }));
+  const d = openDialog(`<h3>📖 Tên riêng & thuật ngữ</h3>
+    <p class="muted small">Tên người, tên công ty, địa danh, thuật ngữ… ở cột trái sẽ luôn được dịch thành đúng chữ ở cột phải. Chỉ áp dụng cho tài liệu này.</p>
+    <div class="gl-list" id="glList"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" id="glAdd">＋ Thêm dòng</button><button type="button" id="glSug">✨ Gợi ý tên riêng</button></div>
+    <div class="gl-sug" id="glSugBox" hidden></div>
+    <div class="dlg-acts"><button type="button" id="glCancel">Đóng</button><button type="button" class="primary" id="glSave">Lưu bảng tên</button></div>`, { wide: true });
+  const list = $('#glList', d.el);
+  const draw = () => {
+    if (!rows.length) rows.push({ s: '', t: '' });
+    list.innerHTML = rows.map((r, k) => `<div class="gl-row" data-k="${k}"><input type="text" data-f="s" placeholder="Tên gốc (vd: Harry)" value="${esc(r.s)}" dir="auto"><span class="arrow muted">→</span><input type="text" data-f="t" placeholder="Dịch thành (vd: Harry)" value="${esc(r.t)}" dir="auto"><button type="button" class="ghost" data-del="${k}" aria-label="Xoá dòng">✕</button></div>`).join('');
+  };
+  list.addEventListener('input', e => { const k = +e.target.closest('.gl-row').dataset.k; rows[k][e.target.dataset.f] = e.target.value; });
+  list.addEventListener('click', e => { const k = e.target.dataset.del; if (k != null) { rows.splice(+k, 1); draw(); } });
+  $('#glAdd', d.el).onclick = () => { rows.push({ s: '', t: '' }); draw(); list.lastElementChild.querySelector('input').focus(); };
+  $('#glCancel', d.el).onclick = () => d.close();
+  $('#glSug', d.el).onclick = async () => {
+    const box = $('#glSugBox', d.el); box.hidden = false;
+    box.innerHTML = '<p class="muted">Đang tìm các tên lặp lại trong tài liệu…</p>';
+    await sleep(30);
+    const lang = b.src !== 'auto' ? b.src : (b.detected || 'en');
+    const sug = suggestNames(S.paras, lang, rows.filter(r => r.s.trim()));
+    if (!sug.length) { box.innerHTML = '<p class="muted">Không tìm thấy tên nào lặp lại đủ nhiều. Bạn có thể tự thêm tên ở trên.</p>'; return; }
+    box.innerHTML = `<p><b>Gợi ý (${sug.length})</b> <span class="muted small">— tick những tên muốn giữ, sửa cách dịch nếu cần.</span></p>
+      <div class="gl-list">${sug.map((g, k) => `<label class="gs"><input type="checkbox" data-k="${k}"><span dir="auto">${esc(g.term)} <span class="muted small">×${g.count}</span></span><span class="arrow muted">→</span><input type="text" data-tk="${k}" value="${esc(g.term)}" dir="auto"></label>`).join('')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" id="glAll">Chọn tất cả</button><button type="button" class="primary" id="glTake">Thêm các tên đã chọn</button><span class="muted small" id="glHint"></span></div>`;
+    $('#glAll', box).onclick = () => $$('input[type=checkbox]', box).forEach(c => c.checked = true);
+    $('#glTake', box).onclick = () => {
+      let n = 0;
+      $$('input[type=checkbox]', box).forEach(c => { if (!c.checked) return; const k = +c.dataset.k; const t = $(`input[data-tk="${k}"]`, box).value.trim(); rows.splice(rows.findIndex(r => !r.s.trim()) >= 0 ? rows.findIndex(r => !r.s.trim()) : rows.length, 0, { s: sug[k].term, t: t || sug[k].term }); n++; });
+      if (!n) { toast('Bạn chưa tick tên nào.'); return; }
+      box.hidden = true; draw(); toast(`Đã thêm ${n} tên vào bảng. Nhớ bấm "Lưu bảng tên".`);
+    };
+    // Gợi ý cách dịch tên bằng Google (một lượt nhỏ). Lỗi thì giữ nguyên tên gốc.
+    const hint = $('#glHint', box); hint.textContent = 'Đang gợi ý cách dịch…';
+    try {
+      const r = await gtRetry(sug.map(g => g.term).join('\n'), b.src || 'auto', b.tgt);
+      const lines = r.text.split('\n').map(s => s.trim()).filter(Boolean);
+      if (lines.length === sug.length) lines.forEach((l, k) => { const inp = $(`input[data-tk="${k}"]`, box); if (inp && inp.value === sug[k].term) inp.value = l; });
+      hint.textContent = '';
+    } catch { hint.textContent = '(Không gợi ý được cách dịch, đang giữ nguyên tên gốc.)'; }
+  };
+  $('#glSave', d.el).onclick = async () => {
+    const clean = []; const seen = new Set();
+    for (const r of rows) { const s = r.s.trim(); if (!s || seen.has(s)) continue; seen.add(s); clean.push({ s, t: r.t.trim() || s }); }
+    const changed = JSON.stringify(clean) !== JSON.stringify(b.glossary || []);
+    b.glossary = clean; saveMeta(true); d.close();
+    toast(`Đã lưu ${clean.length} tên riêng.`);
+    const st = progressStats();
+    if (changed && st.done > 0 && clean.length) {
+      const c = await ask('Áp dụng cho phần đã dịch?', `Đã có ${fmt(st.done)} đoạn được dịch trước đó. Bảng tên mới chỉ tự áp dụng cho các đoạn dịch sau này. Bạn có muốn dịch lại những đoạn có chứa tên trong bảng không? (Đoạn bạn đã sửa tay được giữ nguyên.)`, ['Dịch lại các đoạn có tên', 'Để sau']);
+      if (c === 0) {
+        if (T.state === 'running') pauseTranslate();
+        const G = compileGlossary(clean); let n = 0;
+        S.paras.forEach(p => { if (p.st === 1 && !p.ed && G.protect(p.s) !== p.s) { p.st = 0; n++; } });
+        DB.putParas(S.paras.filter(p => p.st === 0)); refreshVisibleRows(); onProgress(true); renderControls();
+        if (n) { toast(`${n} đoạn sẽ được dịch lại.`); startTranslate(); } else toast('Không có đoạn đã dịch nào chứa các tên này.');
+      }
+    }
+  };
+  draw();
+}
+
+/* =====================================================================
+   8. XUẤT FILE: TXT, HTML song ngữ, EPUB, In / Lưu PDF
+   ===================================================================== */
+const safeName = s => (s || 'tai-lieu').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100) || 'tai-lieu';
+const fileBase = () => `${safeName(S.book.title)} - ${S.book.tgt}`;
+function download(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+}
+// Dữ liệu sách theo chương để xuất. Đoạn chưa dịch giữ nguyên bản gốc.
+function exportData() {
+  const b = S.book;
+  return b.chapters.map(c => {
+    const paras = [];
+    for (let i = c.start; i < c.end; i++) {
+      if (i === c.head || i === c.sub) continue;
+      const p = S.paras[i];
+      paras.push({ k: p.k, src: p.s, tr: p.st === 1 && p.t ? p.t : p.s, ok: p.st === 1 });
+    }
+    return { title: chTitle(c, true, b.tgt), srcTitle: chTitle(c, false, b.tgt), paras };
+  }).filter(c => c.paras.length || c.title);
+}
+function warnIncomplete() {
+  const st = progressStats();
+  if (st.done < st.total) toast(`Tài liệu mới dịch ${fmt(st.done)}/${fmt(st.total)} đoạn. Các đoạn chưa dịch sẽ giữ nguyên bản gốc trong file.`, 'warn', 6000);
+}
+function exportTXT() {
+  warnIncomplete();
+  const out = [S.book.title, ''];
+  for (const c of exportData()) { out.push('', c.title.toUpperCase(), ''); for (const p of c.paras) out.push(p.tr, ''); }
+  download(new Blob(['\uFEFF' + out.join('\n').replace(/\n{3,}/g, '\n\n')], { type: 'text/plain;charset=utf-8' }), fileBase() + '.txt');
+}
+function exportHTML() {
+  warnIncomplete();
+  const b = S.book, data = exportData();
+  const body = data.map((c, k) => `<section id="c${k}"><h2><span>${esc(c.srcTitle)}</span><span>${esc(c.title)}</span></h2>${c.paras.map(p => `<div class="r${p.k === 'h' ? ' h' : ''}"><div class="s" dir="auto">${esc(p.src)}</div><div class="t" dir="auto">${esc(p.tr)}</div></div>`).join('')}</section>`).join('');
+  const html = `<!doctype html><html lang="${b.tgt}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(b.title)} – song ngữ</title>
+<style>:root{color-scheme:light dark}body{margin:0;font:17px/1.7 Georgia,"Noto Serif",serif;background:#faf8f2;color:#1e2226}@media (prefers-color-scheme:dark){body{background:#16181b;color:#e6e3dc}.s{color:#9aa0a6!important}nav,h2{border-color:#333!important}}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}h1{font-size:26px;margin:0 0 6px}nav{border:1px solid #ddd;border-radius:10px;padding:10px 18px;margin:18px 0 30px}nav a{color:inherit;display:block;padding:3px 0}
+h2{display:grid;grid-template-columns:1fr 1fr;gap:28px;font-size:21px;border-bottom:1px solid #ddd;padding-bottom:8px;margin-top:44px}.r{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:6px 0}.s{color:#555}.h{font-weight:700}
+@media (max-width:760px){.r,h2{grid-template-columns:1fr;gap:2px}.s{font-size:.88em}.r{padding:9px 0}}</style></head>
+<body><main><h1>${esc(b.title)}</h1><div style="color:#888">Bản song ngữ ${esc(langName(b.detected || b.src))} – ${esc(langName(b.tgt))} · tạo bởi Dịch Tài Liệu PDF (Google Translate)</div>
+<nav>${data.map((c, k) => `<a href="#c${k}">${esc(c.title)}</a>`).join('')}</nav>${body}</main></body></html>`;
+  download(new Blob([html], { type: 'text/html;charset=utf-8' }), fileBase() + '.html');
+}
+const xml = s => String(s ?? '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+async function exportEPUB() {
+  if (!await waitLib('JSZip', 8000)) { toast('Không tải được thư viện tạo EPUB. Hãy kiểm tra mạng rồi thử lại.', 'err'); return; }
+  warnIncomplete();
+  const b = S.book, lang = b.tgt, data = exportData();
+  const uid = 'urn:uuid:' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+  const zip = new JSZip();
+  zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+  zip.file('META-INF/container.xml', '<?xml version="1.0" encoding="UTF-8"?>\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+  zip.file('OEBPS/style.css', 'body{font-family:serif;line-height:1.6;margin:0 4%}h1{text-align:center;margin-top:30%}h2{margin:1.5em 0 1em;font-size:1.4em}p{margin:0 0 .8em;text-indent:1.2em;text-align:justify}p.h{font-weight:bold;text-indent:0}');
+  const page = (title, inner) => `<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${lang}" lang="${lang}" dir="${isRtl(lang) ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"/><title>${xml(title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head><body>${inner}</body></html>`;
+  zip.file('OEBPS/title.xhtml', page(b.title, `<h1>${xml(b.title)}</h1>`));
+  const files = data.map((c, k) => {
+    const name = `c${String(k + 1).padStart(3, '0')}.xhtml`;
+    zip.file('OEBPS/' + name, page(c.title, `<section epub:type="chapter"><h2>${xml(c.title)}</h2>${c.paras.map(p => `<p${p.k === 'h' ? ' class="h"' : ''}>${xml(p.tr)}</p>`).join('')}</section>`));
+    return { name, title: c.title };
+  });
+  zip.file('OEBPS/nav.xhtml', page('Mục lục', `<nav epub:type="toc" id="toc"><h2>${lang !== 'vi' ? 'Contents' : 'Mục lục'}</h2><ol>${files.map(f => `<li><a href="${f.name}">${xml(f.title)}</a></li>`).join('')}</ol></nav>`));
+  zip.file('OEBPS/toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>\n<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><head><meta name="dtb:uid" content="${uid}"/></head><docTitle><text>${xml(b.title)}</text></docTitle><navMap>${files.map((f, k) => `<navPoint id="n${k + 1}" playOrder="${k + 1}"><navLabel><text>${xml(f.title)}</text></navLabel><content src="${f.name}"/></navPoint>`).join('')}</navMap></ncx>`);
+  const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  zip.file('OEBPS/content.opf', `<?xml version="1.0" encoding="UTF-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${lang}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bookid">${uid}</dc:identifier><dc:title>${xml(b.title)}</dc:title><dc:language>${lang}</dc:language><dc:creator>Dịch Tài Liệu PDF</dc:creator><meta property="dcterms:modified">${modified}</meta></metadata>
+<manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/><item id="css" href="style.css" media-type="text/css"/><item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>${files.map((f, k) => `<item id="c${k + 1}" href="${f.name}" media-type="application/xhtml+xml"/>`).join('')}</manifest>
+<spine toc="ncx"><itemref idref="title"/><itemref idref="nav"/>${files.map((f, k) => `<itemref idref="c${k + 1}"/>`).join('')}</spine></package>`);
+  const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip', compression: 'DEFLATE' });
+  download(blob, fileBase() + '.epub');
+}
+function exportPrint() {
+  warnIncomplete();
+  const b = S.book, data = exportData();
+  const html = `<!doctype html><html lang="${b.tgt}" dir="${isRtl(b.tgt) ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${esc(fileBase())}</title><style>
+@page{margin:2cm 2.2cm}body{font:12pt/1.65 Georgia,"Times New Roman","Noto Serif",serif;color:#111;margin:0}
+.cover{height:85vh;display:flex;flex-direction:column;justify-content:center;text-align:center}.cover h1{font-size:28pt;margin:0 0 12pt}
+h2{font-size:17pt;margin:0 0 14pt;page-break-before:always;break-before:page}p{margin:0 0 7pt;text-indent:1.3em;text-align:justify;orphans:2;widows:2}p.h{font-weight:bold;text-indent:0}
+@media screen{body{max-width:760px;margin:20px auto;padding:0 16px}}</style></head><body>
+<div class="cover"><h1>${esc(b.title)}</h1><div>${b.tgt === 'vi' ? 'Bản dịch Tiếng Việt' : esc(nativeName(b.tgt))}</div></div>
+${data.map(c => `<h2>${esc(c.title)}</h2>${c.paras.map(p => `<p${p.k === 'h' ? ' class="h"' : ''}>${esc(p.tr)}</p>`).join('')}`).join('')}
+<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`;
+  const w = window.open('', '_blank');
+  if (w) { w.document.open(); w.document.write(html); w.document.close(); return; }
+  // trình duyệt chặn cửa sổ mới → in qua khung ẩn
+  const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(f); f.contentDocument.open(); f.contentDocument.write(html.replace(/<script>[\s\S]*?<\/script>/, '')); f.contentDocument.close();
+  setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 400);
+}
+
+/* =====================================================================
+   9. NHẬP SÁCH, TỦ SÁCH, KHỞI ĐỘNG
+   ===================================================================== */
+function askPassword(wrong) {
+  return new Promise(res => {
+    const d = openDialog(`<h3>🔒 PDF có mật khẩu</h3><p>${wrong ? '<span style="color:var(--err)">Mật khẩu chưa đúng, hãy thử lại.</span>' : 'File này được khoá bằng mật khẩu. Nhập mật khẩu để mở (mật khẩu chỉ dùng trên máy bạn).'}</p>
+      <form id="pwf"><input type="password" id="pw" autocomplete="off" placeholder="Mật khẩu PDF"><div class="dlg-acts"><button type="button" id="pwc">Huỷ</button><button class="primary" type="submit">Mở tài liệu</button></div></form>`, { onClose: v => res(v ?? null) });
+    $('#pw', d.el).focus();
+    $('#pwc', d.el).onclick = () => d.close(null);
+    $('#pwf', d.el).onsubmit = e => { e.preventDefault(); d.close($('#pw', d.el).value); };
+  });
+}
+let loadDlg = null;
+function showLoading(text) {
+  hideLoading(); Import.cancel = false;
+  loadDlg = openDialog(`<h3>Đang đọc tài liệu…</h3><div id="ldText" class="muted">${esc(text)}</div><div class="loadbar"><i id="ldBar"></i></div><div class="dlg-acts"><button type="button" id="ldCancel">Huỷ</button></div>`, { onClose: () => { Import.cancel = true; loadDlg = null; } });
+  $('#ldCancel', loadDlg.el).onclick = () => loadDlg && loadDlg.close();
+}
+function setLoading(text, frac) { if (!loadDlg) return; $('#ldText', loadDlg.el).textContent = text; if (frac != null) $('#ldBar', loadDlg.el).style.width = (frac * 100).toFixed(1) + '%'; }
+function hideLoading() { if (loadDlg) { const d = loadDlg; loadDlg = null; d.close('done'); } }
+
+async function handleFile(file) {
+  if (!file) return;
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+  if (!isPdf) { toast(`Xin lỗi, hiện chỉ hỗ trợ file PDF. "${file.name}" không phải file PDF.`, 'warn', 6000); return; }
+  if (T.state === 'running') pauseTranslate();
+  const books = await DB.allBooks();
+  const ex = books.find(b => b.fileName === file.name && b.fileSize === file.size);
+  if (ex) {
+    const c = await ask('Tài liệu này đã được mở trước đây', `"${ex.title}" đang có trong mục Tài liệu của tôi (đã dịch ${Math.round(ex.pct || 0)}%).`, ['Mở bản đã lưu', 'Đọc lại từ đầu']);
+    if (c === 0) return openBook(ex.id);
+    if (c == null) return;
+  }
+  showLoading('Đang mở file…');
+  try {
+    const r = await readPdf(file, (i, n) => setLoading(`Đang đọc trang ${i}/${n}…`, i / n));
+    setLoading('Đang dựng lại đoạn văn và chia phần…', 1); await sleep(20);
+    const body = bodyFontSize(r.pages);
+    stripHeadersFooters(r.pages, body);
+    const raw = buildParagraphs(r.pages, body);
+    if (!raw.length) throw new UserError('SCAN');
+    const { chapters, method } = splitChapters(raw, r.outline, r.numPages);
+    const allText = raw.map(p => p.s).join('\n');
+    const detected = detectLang(allText);
+    let title = String(r.metaTitle || '').replace(/^microsoft\s+word\s*-\s*/i, '').trim();
+    if (!title || title.length < 2 || /^(untitled|unknown|document|null)$/i.test(title) || /\.(docx?|pdf|indd|tex)$/i.test(title)) title = file.name.replace(/\.pdf$/i, '');
+    const id = 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const book = {
+      id, title, fileName: file.name, fileSize: file.size, pages: r.numPages, method, chapters,
+      words: countWords(allText), chars: allText.length, src: 'auto', detected, tgt: store.get('tgt', 'vi'),
+      glossary: [], tstate: 'idle', done: 0, err: 0, total: raw.length, pct: 0, created: Date.now(), updated: Date.now(), lastCh: 0
+    };
+    if (detected === book.tgt) book.tgt = book.tgt === 'vi' ? 'en' : 'vi';
+    const paras = raw.map((p, i) => ({ b: id, i, s: p.s, t: '', st: 0, k: p.k, pg: p.pg, ed: 0 }));
+    await DB.putBook(book);
+    for (let k = 0; k < paras.length; k += 1000) await DB.putParas(paras.slice(k, k + 1000));
+    hideLoading();
+    await openBook(id, { book, paras });
+    toast(`Đã đọc xong: ${fmt(book.pages)} trang, ${fmt(chapters.length)} phần, ${fmt(book.words)} chữ.`, 'info', 6000);
+  } catch (e) {
+    hideLoading();
+    if (e instanceof UserError && e.message === 'SCAN') infoBox('PDF dạng ảnh scan — chưa hỗ trợ', 'File này là ảnh chụp/scan, không có lớp chữ để đọc, nên chưa dịch được. Hãy dùng công cụ nhận dạng chữ (OCR) để chuyển thành PDF có chữ, rồi mở lại ở đây.');
+    else if (e instanceof UserError) { if (!/Đã huỷ/.test(e.message)) infoBox('Không đọc được tài liệu', e.message); else toast(e.message); }
+    else { console.error(e); infoBox('Không đọc được tài liệu', 'Có lỗi khi đọc file PDF này. File có thể bị hỏng hoặc quá phức tạp. Hãy thử file khác.'); }
+  } finally { $('#file').value = ''; }
+}
+
+async function openBook(id, preload) {
+  if (T.state !== 'idle' && S.book && S.book.id !== id) { T.state = 'idle'; T.ctrl && T.ctrl.abort(); T.queue = []; }
+  const book = preload ? preload.book : await DB.getBook(id);
+  if (!book) { toast('Không tìm thấy tài liệu này trong máy nữa.', 'err'); return; }
+  const paras = preload ? preload.paras : (await DB.getParas(id)).sort((a, b) => a.i - b.i);
+  if (!paras.length) { toast('Dữ liệu của tài liệu này bị thiếu. Hãy mở lại file PDF.', 'err'); return; }
+  paras.forEach(p => { if (p.st === 3) p.st = 0; });
+  S.book = book; S.paras = paras; S.editing = null; S.view.hl = ''; $('#q').value = ''; $('#sres').hidden = true;
+  T.state = 'idle'; T.msg = '';
+  show('bookScreen');
+  renderBook();
+  setMode(S.mode);
+  openChapter(Math.min(book.lastCh || 0, book.chapters.length - 1));
+  window.scrollTo(0, 0);
+  store.set('last', id);
+  // Lần trước đang dịch dở (tải lại trang / tắt máy) → cho dịch tiếp đúng chỗ dừng
+  if (book.tstate === 'running' || book.tstate === 'paused') {
+    T.state = 'paused';
+    T.msg = `Lần trước bạn đang dịch dở (${Math.round(progressStats().doneChars / Math.max(1, progressStats().totalChars) * 100)}%). Bấm Tiếp tục để dịch tiếp đúng chỗ đã dừng.`;
+    renderControls(); onProgress(true);
+  }
+}
+
+async function renderLibrary() {
+  show('libScreen');
+  const books = (await DB.allBooks()).sort((a, b) => b.updated - a.updated);
+  const box = $('#libList');
+  if (!books.length) { box.innerHTML = '<div class="empty">Chưa có tài liệu nào. Hãy mở một file PDF ở trang chính để bắt đầu.</div>'; return; }
+  box.innerHTML = books.map(b => bookCard(b, true)).join('');
+}
+function bookCard(b, withDelete) {
+  const pct = Math.round(b.pct || 0);
+  return `<div class="card" data-id="${b.id}"><div class="info"><div class="name" dir="auto">${esc(b.title)}</div>
+    <div class="muted small">${fmt(b.pages)} trang · ${fmt(b.chapters.length)} phần · → ${esc(langName(b.tgt))} · đã dịch ${pct}%${b.err ? ` · <span style="color:var(--err)">${b.err} đoạn lỗi</span>` : ''}</div>
+    <div class="minibar"><i style="width:${pct}%"></i></div></div>
+    <div class="acts"><button type="button" class="primary" data-open="${b.id}">${pct > 0 && pct < 100 ? 'Dịch tiếp' : 'Mở'}</button>${withDelete ? `<button type="button" class="danger" data-del="${b.id}" aria-label="Xoá tài liệu">Xoá</button>` : ''}</div></div>`;
+}
+async function renderHome() {
+  show('home'); document.title = 'Dịch Tài Liệu PDF';
+  const books = (await DB.allBooks()).sort((a, b) => b.updated - a.updated).slice(0, 3);
+  $('#recent').hidden = !books.length;
+  $('#recentList').innerHTML = books.map(b => bookCard(b, false)).join('');
+}
+
+function showGuide() {
+  const d = openDialog(`<h3>Chào bạn 👋 Dịch tài liệu chỉ với 3 bước</h3>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><b>Chọn file PDF</b><div class="muted small">Kéo thả vào ô giữa màn hình hoặc bấm để chọn. Tài liệu chỉ nằm trên máy bạn.</div></div></div>
+      <div class="step"><div class="n">2</div><div><b>Chọn ngôn ngữ</b><div class="muted small">Ngôn ngữ gốc được tự nhận diện. Chọn ngôn ngữ muốn dịch sang (hơn 60 thứ tiếng).</div></div></div>
+      <div class="step"><div class="n">3</div><div><b>Bấm Dịch</b><div class="muted small">Tiến độ tự lưu. Tắt máy, mở lại vẫn dịch tiếp được. Xong thì xuất TXT, HTML, EPUB hoặc PDF.</div></div></div>
+    </div>
+    <div class="dlg-acts"><button type="button" id="gSkip">Bỏ qua</button><button type="button" class="primary" id="gGo">Bắt đầu</button></div>`, { onClose: () => store.set('guided', 1) });
+  $('#gSkip', d.el).onclick = () => d.close();
+  $('#gGo', d.el).onclick = () => d.close();
+}
+
+/* ---------- Gắn sự kiện ---------- */
+function bindEvents() {
+  const fileIn = $('#file'), drop = $('#drop');
+  drop.addEventListener('click', () => fileIn.click());
+  drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileIn.click(); } });
+  fileIn.addEventListener('change', () => handleFile(fileIn.files[0]));
+  // kéo thả: nhận ở bất cứ đâu trên trang
+  let dragN = 0;
+  window.addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); dragN++; drop.classList.add('over'); } });
+  window.addEventListener('dragleave', () => { if (--dragN <= 0) { dragN = 0; drop.classList.remove('over'); } });
+  window.addEventListener('dragover', e => e.preventDefault());
+  window.addEventListener('drop', e => {
+    e.preventDefault(); dragN = 0; drop.classList.remove('over');
+    const files = [...(e.dataTransfer?.files || [])];
+    if (!files.length) return;
+    if (files.length > 1) toast('Mỗi lần chỉ mở được một tài liệu, đang mở file đầu tiên.');
+    handleFile(files[0]);
+  });
+
+  $('#goHome').onclick = () => { closeEditor(); renderHome(); };
+  $('#navLib').onclick = () => { closeEditor(); renderLibrary(); };
+  $('#navHelp').onclick = showGuide;
+  $('#navTheme').onclick = () => {
+    const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(cur === 'dark' ? 'light' : 'dark');
+  };
+  document.addEventListener('click', e => {
+    const o = e.target.closest('[data-open]'); if (o) { openBook(o.dataset.open); return; }
+    const d = e.target.closest('[data-del]');
+    if (d && d.closest('#libList')) {
+      (async () => {
+        const id = d.dataset.del, b = await DB.getBook(id);
+        if (!await confirmBox('Xoá tài liệu?', `Xoá "${b ? b.title : 'tài liệu này'}" và toàn bộ bản dịch khỏi máy. Không thể hoàn tác.`, 'Xoá')) return;
+        if (S.book && S.book.id === id) { T.state = 'idle'; T.ctrl && T.ctrl.abort(); S.book = null; S.paras = []; }
+        await DB.deleteBook(id); toast('Đã xoá tài liệu.'); renderLibrary();
+      })();
+    }
+    if (!e.target.closest('.menu')) $('#exportMenu').hidden = true;
+    if (!e.target.closest('.search')) $('#sres').hidden = true;
+  });
+
+  // điều khiển dịch
+  $('#btnStart').onclick = () => startTranslate(false);
+  $('#btnResume').onclick = () => startTranslate(false);
+  $('#btnPause').onclick = pauseTranslate;
+  $('#btnCancel').onclick = cancelTranslate;
+  $('#btnRetryErr').onclick = () => startTranslate(true);
+  $('#selSrc').onchange = e => { S.book.src = e.target.value; saveMeta(true); if (progressStats().done) toast('Ngôn ngữ gốc mới sẽ áp dụng cho các đoạn dịch tiếp theo.'); };
+  $('#selTgt').onchange = async e => {
+    const v = e.target.value; if (!v || !S.book || v === S.book.tgt) return;
+    const st = progressStats();
+    if (st.done > 0) {
+      if (!await confirmBox('Đổi ngôn ngữ đích?', `Đổi sang ${langName(v)} sẽ xoá ${fmt(st.done)} đoạn đã dịch để dịch lại từ đầu.`, 'Đổi và dịch lại')) { e.target.value = S.book.tgt; return; }
+      if (T.state !== 'idle') { T.state = 'idle'; T.ctrl && T.ctrl.abort(); T.queue = []; }
+      S.paras.forEach(p => { p.t = ''; p.st = 0; p.ed = 0; });
+      await DB.putParas(S.paras);
+    }
+    S.book.tgt = v; S.book.chapters.forEach(c => c.tr = ''); store.set('tgt', v); S.book.tstate = 'idle'; T.msg = '';
+    saveMeta(true); renderBook(); openChapter(S.view.ch);
+  };
+  $('#selConc').onchange = e => { S.conc = +e.target.value; store.set('conc', S.conc); if (T.state === 'running') spawnWorkers(); };
+  $('#btnGloss').onclick = openGlossary;
+  $('#btnExport').onclick = () => { $('#exportMenu').hidden = !$('#exportMenu').hidden; };
+  $('#exportMenu').onclick = e => {
+    const k = e.target.dataset.exp; if (!k) return; $('#exportMenu').hidden = true;
+    try { ({ txt: exportTXT, html: exportHTML, epub: exportEPUB, print: exportPrint })[k](); }
+    catch (err) { console.error(err); toast('Không xuất được file. Hãy thử lại.', 'err'); }
+  };
+
+  // đọc
+  $('#rows').addEventListener('click', e => {
+    const cell = e.target.closest('.tr'); if (!cell || cell.classList.contains('editing')) {
+      const btn = e.target.closest('[data-act]');
+      if (btn) { const i = S.editing; if (btn.dataset.act === 'done') closeEditor(); else if (i != null) retranslateOne(i); }
+      return;
+    }
+    const i = +cell.parentElement.dataset.i, p = S.paras[i];
+    if (p.st === 3) return;
+    if (p.st === 2) retranslateOne(i); else openEditor(i);
+  });
+  $('#rows').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('tr') && !e.target.classList.contains('editing')) { e.preventDefault(); e.target.click(); } });
+  $('#tocList').onclick = e => { const li = e.target.closest('li'); if (li) openChapter(+li.dataset.c); };
+  $('#btnToc').onclick = openToc; $('#tocClose').onclick = closeToc; $('#tocBackdrop').onclick = closeToc;
+  for (const id of ['#prevCh', '#prevTop']) $(id).onclick = () => openChapter(S.view.ch - 1);
+  for (const id of ['#nextCh', '#nextTop']) $(id).onclick = () => openChapter(S.view.ch + 1);
+  $('#segMode').onclick = e => { const v = e.target.dataset.v; if (v) setMode(v); };
+  $('#fontUp').onclick = () => setFont(S.font + 1);
+  $('#fontDown').onclick = () => setFont(S.font - 1);
+  const qIn = $('#q'), runSearch = debounce(() => doSearch(qIn.value), 280);
+  qIn.addEventListener('input', runSearch);
+  qIn.addEventListener('focus', () => { if (qIn.value.trim().length >= 2) doSearch(qIn.value); });
+  qIn.addEventListener('keydown', e => { if (e.key === 'Enter') { const f = $('#sres .it'); f && f.click(); } if (e.key === 'Escape') { qIn.value = ''; doSearch(''); } });
+  $('#sres').onclick = e => {
+    const it = e.target.closest('.it'); if (!it) return;
+    const i = +it.dataset.i; S.view.hl = qIn.value.trim(); $('#sres').hidden = true;
+    openChapter(chOf(i), i);
+  };
+  io.observe($('#sentinel'));
+  window.addEventListener('online', () => { if (T.state === 'paused' && T.msg) toast('Đã có mạng trở lại. Bấm Tiếp tục để dịch tiếp.'); });
+}
+
+// Lỗi bất ngờ: báo bằng câu dễ hiểu, không hiện lỗi kỹ thuật
+window.addEventListener('error', e => { if (e.message && /ResizeObserver/.test(e.message)) return; console.error(e.error || e.message); toast('Có trục trặc nhỏ. Nếu trang hoạt động lạ, hãy tải lại trang — tiến độ dịch đã được lưu.', 'err', 6000); });
+window.addEventListener('unhandledrejection', e => { console.error(e.reason); if (e.reason && e.reason.name === 'AbortError') return; toast('Có trục trặc nhỏ. Nếu trang hoạt động lạ, hãy tải lại trang — tiến độ dịch đã được lưu.', 'err', 6000); });
+
+(async function init() {
+  const th = store.get('theme', ''); if (th) setTheme(th);
+  S.conc = store.get('conc', 2); S.mode = store.get('mode', 'bi'); setFont(store.get('font', 18));
+  bindEvents();
+  await DB.open();
+  renderHome();
+  if (!store.get('guided', 0)) showGuide();
+})();
+</script>
+</body>
+</html>
